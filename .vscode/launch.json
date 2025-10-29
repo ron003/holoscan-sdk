@@ -14,9 +14,9 @@
             "autoReload": {
                 "enable": true
             },
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "env": {
-                "PYTHONPATH": "${command:cmake.buildDirectory}/python/lib",
+                "PYTHONPATH": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib",
                 "HOLOSCAN_LOG_LEVEL": "DEBUG",
                 "HOLOSCAN_EXECUTOR_LOG_LEVEL": "INFO",
                 "HOLOSCAN_TESTS_DATA_PATH": "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/tests/data",
@@ -40,7 +40,7 @@
                 "${file}",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -52,11 +52,11 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_INPUT_PATH",
-                    "value": "${command:cmake.buildDirectory}/../data"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/../data"
                 },
             ],
             "MIMode": "gdb",
@@ -72,10 +72,10 @@
             "name": "(gdb) examples/activation_map/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/activation_map/cpp/activation_map",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/activation_map/cpp/activation_map",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -98,10 +98,10 @@
             "program": "/usr/bin/bash",
             "args": [
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/.vscode/debug_python",
-                "${command:cmake.buildDirectory}/examples/activation_map/python/activation_map.py",
+                "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/activation_map/python/activation_map.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -109,7 +109,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -131,7 +131,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/bring_your_own_model/python/byom.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -139,11 +139,11 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_INPUT_PATH",
-                    "value": "${command:cmake.buildDirectory}/../data"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/../data"
                 },
             ],
             "MIMode": "gdb",
@@ -159,10 +159,10 @@
             "name": "(gdb) examples/conditions/asynchronous/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/conditions/asynchronous/cpp/ping_async",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/conditions/asynchronous/cpp/ping_async",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -192,7 +192,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/conditions/asynchronous/python/ping_async.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -200,7 +200,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -216,10 +216,10 @@
             "name": "(gdb) examples/conditions/expiring_message/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/conditions/expiring_message/cpp/ping_expiring_message",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/conditions/expiring_message/cpp/ping_expiring_message",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -249,7 +249,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/conditions/expiring_message/python/ping_expiring_message.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -261,7 +261,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -277,10 +277,10 @@
             "name": "(gdb) examples/conditions/multi_message/multi_message_per_receiver/cpp/",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/conditions/multi_message/cpp/multi_message_per_receiver",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/conditions/multi_message/cpp/multi_message_per_receiver",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -310,7 +310,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/conditions/multi_message/python/multi_message_per_receiver.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -318,7 +318,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -334,10 +334,10 @@
             "name": "(gdb) examples/conditions/multi_message/multi_message_sum_of_all/cpp/",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/conditions/multi_message/cpp/multi_message_sum_of_all",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/conditions/multi_message/cpp/multi_message_sum_of_all",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -367,7 +367,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/conditions/multi_message/python/multi_message_sum_of_all.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -375,7 +375,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -391,10 +391,10 @@
             "name": "(gdb) examples/conditions/multi_message/single_message_timeout/cpp/",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/conditions/multi_message/cpp/single_message_timeout",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/conditions/multi_message/cpp/single_message_timeout",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -424,7 +424,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/conditions/multi_message/python/single_message_timeout.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -432,7 +432,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -448,10 +448,10 @@
             "name": "(gdb) examples/conditions/or_combiner/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/conditions/or_combiner/cpp/multi_port_or_combiner",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/conditions/or_combiner/cpp/multi_port_or_combiner",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -477,7 +477,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/conditions/or_combiner/python/multi_port_or_combiner.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -485,7 +485,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -501,10 +501,10 @@
             "name": "(gdb) examples/conditions/periodic/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/conditions/periodic/cpp/ping_periodic",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/conditions/periodic/cpp/ping_periodic",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -530,7 +530,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/conditions/periodic/python/ping_periodic.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -538,7 +538,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -554,10 +554,10 @@
             "name": "(gdb) examples/execution_control/operator_status_tracking/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/execution_control/operator_status_tracking/cpp/operator_status_tracking",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/execution_control/operator_status_tracking/cpp/operator_status_tracking",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -587,7 +587,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/execution_control/operator_status_tracking/python/operator_status_tracking.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -595,7 +595,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -611,10 +611,10 @@
             "name": "(gdb) examples/execution_control/async_operator_execution_control/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/execution_control/async_operator_execution_control/cpp/async_operator_execution_control",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/execution_control/async_operator_execution_control/cpp/async_operator_execution_control",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -644,7 +644,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/execution_control/async_operator_execution_control/python/async_operator_execution_control.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -652,7 +652,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -668,10 +668,10 @@
             "name": "(gdb) examples/flow_control/sequential/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/sequential/cpp/sequential_execution",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/sequential/cpp/sequential_execution",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -701,7 +701,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/sequential/python/sequential_execution.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -709,7 +709,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -725,10 +725,10 @@
             "name": "(gdb) examples/flow_control/conditional/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/conditional/cpp/conditional_execution",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/conditional/cpp/conditional_execution",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -758,7 +758,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/conditional/python/conditional_execution.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -766,7 +766,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -782,10 +782,10 @@
             "name": "(gdb) examples/flow_control/conditional_routing/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/conditional_routing/cpp/conditional_routing_execution",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/conditional_routing/cpp/conditional_routing_execution",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -815,7 +815,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/conditional_routing/python/conditional_routing_execution.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -823,7 +823,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -839,10 +839,10 @@
             "name": "(gdb) examples/flow_control/fork_join/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/fork_join/cpp/fork_join_execution",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/fork_join/cpp/fork_join_execution",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -872,7 +872,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/fork_join/python/fork_join_execution.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -880,7 +880,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -896,10 +896,10 @@
             "name": "(gdb) examples/flow_control/for_loop/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/for_loop/cpp/for_loop_execution",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/for_loop/cpp/for_loop_execution",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -929,7 +929,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/for_loop/python/for_loop_execution.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -937,7 +937,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -953,10 +953,10 @@
             "name": "(gdb) examples/flow_control/mixed_flows/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/mixed_flows/cpp/mixed_flows_execution",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/mixed_flows/cpp/mixed_flows_execution",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -986,7 +986,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/mixed_flows/python/mixed_flows_execution.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -994,7 +994,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1010,10 +1010,10 @@
             "name": "(gdb) examples/flow_control/streaming/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/streaming/cpp/streaming_execution",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/streaming/cpp/streaming_execution",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1043,7 +1043,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/streaming/python/streaming_execution.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1051,7 +1051,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1067,10 +1067,10 @@
             "name": "(gdb) examples/flow_control/streaming_with_monitor/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/streaming_with_monitor/cpp/streaming_with_monitor",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/streaming_with_monitor/cpp/streaming_with_monitor",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1100,7 +1100,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/streaming_with_monitor/python/streaming_with_monitor.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1108,7 +1108,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1124,10 +1124,10 @@
             "name": "(gdb) examples/flow_control/state_based_monitoring/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_control/state_based_monitoring/cpp/state_based_monitoring",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_control/state_based_monitoring/cpp/state_based_monitoring",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1157,7 +1157,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_control/state_based_monitoring/python/state_based_monitoring.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1165,7 +1165,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1187,7 +1187,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/cupy_native/matmul.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1195,7 +1195,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1211,10 +1211,10 @@
             "name": "(gdb) examples/flow_tracker/cpp/flow_tracker",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/flow_tracker/cpp/flow_tracker",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/flow_tracker/cpp/flow_tracker",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1240,7 +1240,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/flow_tracker/python/flow_tracker.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1248,7 +1248,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1264,10 +1264,10 @@
             "name": "(gdb) examples/fragment_service/fragment_service_basic/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/fragment_service/fragment_service_basic/cpp/fragment_service_basic",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/fragment_service/fragment_service_basic/cpp/fragment_service_basic",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1293,7 +1293,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/fragment_service/fragment_service_basic/python/fragment_service_basic.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1301,7 +1301,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1317,10 +1317,10 @@
             "name": "(gdb) examples/fragment_service/fragment_service_with_resource/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/fragment_service/fragment_service_with_resource/cpp/fragment_service_with_resource",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/fragment_service/fragment_service_with_resource/cpp/fragment_service_with_resource",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1346,7 +1346,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/fragment_service/fragment_service_with_resource/python/fragment_service_with_resource.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1354,7 +1354,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1370,10 +1370,10 @@
             "name": "(gdb) examples/hello_world/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/hello_world/cpp/hello_world",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/hello_world/cpp/hello_world",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1399,7 +1399,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/hello_world/python/hello_world.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1407,7 +1407,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1423,10 +1423,10 @@
             "name": "(gdb) examples/holoviz/cpp/holoviz_camera",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/holoviz/cpp/holoviz_camera",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/holoviz/cpp/holoviz_camera",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [],
             "MIMode": "gdb",
             "setupCommands": [
@@ -1441,10 +1441,10 @@
             "name": "(gdb) examples/holoviz/cpp/holoviz_geometry",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/holoviz/cpp/holoviz_geometry",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/holoviz/cpp/holoviz_geometry",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1470,7 +1470,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/holoviz/python/holoviz_geometry.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1478,7 +1478,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1500,7 +1500,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/holoviz/python/holoviz_geometry_3d.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1508,7 +1508,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1530,7 +1530,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/holoviz/python/holoviz_views.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1538,7 +1538,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1554,10 +1554,10 @@
             "name": "(gdb) examples/import_gxf_components/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/import_gxf_components/cpp/import_gxf_components",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/import_gxf_components/cpp/import_gxf_components",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1583,7 +1583,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/import_gxf_components/python/import_gxf_components.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1591,11 +1591,11 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_INPUT_PATH",
-                    "value": "${command:cmake.buildDirectory}/../data"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/../data"
                 },
             ],
         },
@@ -1603,10 +1603,10 @@
             "name": "(gdb) examples/matx/matx_basic/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/matx/matx_basic/cpp/matx_basic",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/matx/matx_basic/cpp/matx_basic",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1626,10 +1626,10 @@
             "name": "(gdb) examples/multithread/cpp/multithread",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/multithread/cpp/multithread",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/multithread/cpp/multithread",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1659,7 +1659,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/multithread/python/multithread.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1671,7 +1671,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1693,7 +1693,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/numpy_native/convolve.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1701,7 +1701,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1717,10 +1717,10 @@
             "name": "(gdb) examples/ping_any/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_any/cpp/ping_any",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_any/cpp/ping_any",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1740,10 +1740,10 @@
             "name": "(gdb) examples/ping_conditional/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_conditional/cpp/ping_conditional",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_conditional/cpp/ping_conditional",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1763,10 +1763,10 @@
             "name": "(gdb) examples/ping_custom_op/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_custom_op/cpp/ping_custom_op",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_custom_op/cpp/ping_custom_op",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1792,7 +1792,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/ping_custom_op/python/ping_custom_op.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1800,7 +1800,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1816,10 +1816,10 @@
             "name": "(gdb) examples/ping_cycle/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_cycle/cpp/ping_cycle",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_cycle/cpp/ping_cycle",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1839,12 +1839,12 @@
             "name": "(gdb) examples/ping_distributed/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_distributed/cpp/ping_distributed",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_distributed/cpp/ping_distributed",
             // "args": ["--driver", "--address=:10000"],
             "args": [],
             // "args": ["--worker", "--address=:10000"],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1877,7 +1877,7 @@
                 "--fragments=all",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1889,7 +1889,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1905,10 +1905,10 @@
             "name": "(gdb) examples/ping_multi_port/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_multi_port/cpp/ping_multi_port",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_multi_port/cpp/ping_multi_port",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1934,7 +1934,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/ping_multi_port/python/ping_multi_port.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1942,7 +1942,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -1958,10 +1958,10 @@
             "name": "(gdb) examples/ping_simple/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_simple/cpp/ping_simple",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_simple/cpp/ping_simple",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1987,7 +1987,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/ping_simple/python/ping_simple.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -1995,7 +1995,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2011,10 +2011,10 @@
             "name": "(gdb) examples/ping_simple_run_async/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_simple_run_async/cpp/ping_simple_run_async",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_simple_run_async/cpp/ping_simple_run_async",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2040,7 +2040,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/ping_simple_run_async/python/ping_simple_run_async.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2048,7 +2048,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2064,10 +2064,10 @@
             "name": "(gdb) examples/ping_vector/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/ping_vector/cpp/ping_vector",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/ping_vector/cpp/ping_vector",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2093,7 +2093,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/ping_vector/python/ping_vector.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2101,7 +2101,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2117,10 +2117,10 @@
             "name": "(gdb) examples/pose_tree/pose_tree_basic/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/pose_tree/pose_tree_basic/cpp/pose_tree_basic",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/pose_tree/pose_tree_basic/cpp/pose_tree_basic",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2146,7 +2146,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/pose_tree/pose_tree_basic/python/pose_tree_basic.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2154,7 +2154,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2170,10 +2170,10 @@
             "name": "(gdb) examples/pose_tree/distributed_pose_tree/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/pose_tree/distributed_pose_tree/cpp/distributed_pose_tree",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/pose_tree/distributed_pose_tree/cpp/distributed_pose_tree",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2199,7 +2199,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/pose_tree/distributed_pose_tree/python/distributed_pose_tree.py"
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2207,7 +2207,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2223,10 +2223,10 @@
             "name": "(gdb) examples/resources/clock/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/resources/clock/cpp/ping_clock",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/resources/clock/cpp/ping_clock",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2252,7 +2252,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/resources/clock/python/ping_clock.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2260,7 +2260,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2276,10 +2276,10 @@
             "name": "(gdb) examples/resources/thread_pool/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/resources/thread_pool/cpp/ping_simple_thread_pool",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/resources/thread_pool/cpp/ping_simple_thread_pool",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2305,7 +2305,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/resources/thread_pool/python/ping_simple_thread_pool.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2313,7 +2313,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2329,10 +2329,10 @@
             "name": "(gdb) examples/round_robin_parallel/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/round_robin_parallel/cpp/round_robin",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/round_robin_parallel/cpp/round_robin",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2358,7 +2358,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/round_robin_parallel/python/round_robin.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2366,7 +2366,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
             ],
             "MIMode": "gdb",
@@ -2382,10 +2382,10 @@
             "name": "(gdb) examples/tensor_interop/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/tensor_interop/cpp/tensor_interop",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/tensor_interop/cpp/tensor_interop",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2411,7 +2411,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/tensor_interop/python/tensor_interop.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2419,11 +2419,11 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_INPUT_PATH",
-                    "value": "${command:cmake.buildDirectory}/../data"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/../data"
                 },
             ],
             "MIMode": "gdb",
@@ -2443,10 +2443,10 @@
             //    "--device=/dev/video0:/dev/video0",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/v4l2_camera/cpp/v4l2_camera",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/v4l2_camera/cpp/v4l2_camera",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2480,7 +2480,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/v4l2_camera/python/v4l2_camera.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2492,11 +2492,11 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_INPUT_PATH",
-                    "value": "${command:cmake.buildDirectory}/../data"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/../data"
                 },
             ],
             "MIMode": "gdb",
@@ -2512,10 +2512,10 @@
             "name": "(gdb) examples/video_replayer/cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/video_replayer/cpp/video_replayer",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/video_replayer/cpp/video_replayer",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2541,7 +2541,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/video_replayer/python/video_replayer.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2549,11 +2549,11 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_INPUT_PATH",
-                    "value": "${command:cmake.buildDirectory}/../data"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/../data"
                 },
             ],
             "MIMode": "gdb",
@@ -2569,10 +2569,10 @@
             "name": "(gdb) examples/video_replayer_distributed/cpp (all fragments)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/video_replayer_distributed/cpp/video_replayer_distributed",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/video_replayer_distributed/cpp/video_replayer_distributed",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2596,7 +2596,7 @@
             "name": "(gdb) examples/video_replayer_distributed/cpp - replayer fragment",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/video_replayer_distributed/cpp/video_replayer_distributed",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/video_replayer_distributed/cpp/video_replayer_distributed",
             "args": [
                 "--driver",
                 "--worker",
@@ -2608,7 +2608,7 @@
                 ":10001",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2632,7 +2632,7 @@
             "name": "(gdb) examples/video_replayer_distributed/cpp - viz fragment",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/examples/video_replayer_distributed/cpp/video_replayer_distributed",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/video_replayer_distributed/cpp/video_replayer_distributed",
             "args": [
                 "--worker",
                 "--fragments",
@@ -2643,7 +2643,7 @@
                 ":10002",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2673,7 +2673,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/examples/video_replayer_distributed/python/video_replayer_distributed.py",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2685,11 +2685,11 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_INPUT_PATH",
-                    "value": "${command:cmake.buildDirectory}/../data"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/../data"
                 },
             ],
             "MIMode": "gdb",
@@ -2705,7 +2705,7 @@
             "name": "(gdb) examples/wrap_operator_as_gxf_extension",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/bin/gxe",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/bin/gxe",
             "args": [
                 "--app",
                 "examples/wrap_operator_as_gxf_extension/gxf_app/ping.yaml",
@@ -2715,7 +2715,7 @@
                 "4"
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2735,7 +2735,7 @@
             "name": "(gdb) examples/wrap_holoscan_as_gxf_extension",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/bin/gxe",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/bin/gxe",
             "args": [
                 "--app",
                 "examples/wrap_holoscan_as_gxf_extension/gxf_app/ping.yaml",
@@ -2745,7 +2745,7 @@
                 "4"
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2776,7 +2776,7 @@
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/python/tests",
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "environment": [
                 {
                     "name": "HOLOSCAN_LOG_LEVEL",
@@ -2788,7 +2788,7 @@
                 },
                 {
                     "name": "PYTHONPATH",
-                    "value": "${command:cmake.buildDirectory}/python/lib"
+                    "value": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/python/lib"
                 },
                 {
                     "name": "HOLOSCAN_TESTS_DATA_PATH",
@@ -2816,10 +2816,10 @@
             "name": "(gdb) Holoinfer: tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/gtests/HOLOINFER_TEST",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/gtests/HOLOINFER_TEST",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
@@ -2839,12 +2839,12 @@
             "name": "(gdb) Holoviz: functional tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/_deps/holoviz-build/tests/functional/holoviz_functionaltests",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/_deps/holoviz-build/tests/functional/holoviz_functionaltests",
             "args": [
                 "--gtest_filter=*"
             ],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.buildDirectory}",
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
             "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
@@ -2864,7 +2864,7 @@
             "name": "(gdb) Holoviz: demo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/_deps/holoviz-build/examples/demo/holoviz_demo",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/_deps/holoviz-build/examples/demo/holoviz_demo",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/modules/holoviz/examples/demo",
@@ -2887,7 +2887,7 @@
             "name": "(gdb) Holoviz: depth_map",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/_deps/holoviz-build/examples/depth_map/holoviz_depth_map",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/_deps/holoviz-build/examples/depth_map/holoviz_depth_map",
             "args": [
                 "-d",
                 "data/endoscopy_depth/disp_maps",
@@ -2915,7 +2915,7 @@
             "name": "(gdb) SYSTEM_TEST",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}/gtests/SYSTEM_TEST",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/gtests/SYSTEM_TEST",
             "args": [
                 "--gtest_filter=*"
             ],

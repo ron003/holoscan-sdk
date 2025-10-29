@@ -23,7 +23,10 @@
             "name": "arm64",
             "includePath": [
                 "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/include",
-                "/usr/local/cuda/include",
+                "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/include/3rdparty",
+                "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/include/gxf",
+                "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}/include/3rdparty/ucx",
+                "/usr/local/cuda/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

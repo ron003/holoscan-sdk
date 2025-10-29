@@ -817,7 +817,7 @@ echo
 }
 install_lint_deps() {
     c_echo W "Install Lint Dependencies"
-    run_command ${HOLOSCAN_PY_EXE} -m pip install -r ${TOP}/python/requirements.lint.txt
+    run_command pip install -r ${TOP}/python/requirements.lint.txt
 }
 
 lint_desc() { c_echo 'Lint the repository

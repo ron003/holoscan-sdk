@@ -142,7 +142,7 @@
     "[dockerfile]": {
         "editor.formatOnSave": false,
     },
-    "cmake.configureOnOpen": true,
+    "cmake.configureOnOpen": false,
     "cmake.sourceDirectory": "${workspaceFolder}/${env:HOLOSCAN_PUBLIC_FOLDER}",
     // https://vector-of-bool.github.io/docs/vscode-cmake-tools/settings.html
     "cmake.buildTask": false,

@@ -8,14 +8,6 @@
         }
     },
     {
-        "name": "GCC x86-64",
-        "compilers": {
-            "C": "/usr/bin/x86_64-linux-gnu-gcc",
-            "CXX": "/usr/bin/x86_64-linux-gnu-g++"
-        }
-    },
-    {
-        "name": "GCC arm64",
         "compilers": {
             "C": "/usr/bin/aarch64-linux-gnu-gcc",
             "CXX": "/usr/bin/aarch64-linux-gnu-g++"
