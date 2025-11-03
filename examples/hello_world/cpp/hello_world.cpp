@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <holoscan/holoscan.hpp>
+#include <string_view>
 
 namespace holoscan::ops {
 
@@ -24,15 +25,16 @@ class HelloWorldOp : public Operator {
  public:
   HOLOSCAN_OPERATOR_FORWARD_ARGS(HelloWorldOp)
 
-  HelloWorldOp() = default;
+  HelloWorldOp() noexcept = default;
+  ~HelloWorldOp() override = default;
 
-  void setup(OperatorSpec& spec) override {}
+  void setup(OperatorSpec& /*spec*/) override {}
 
-  void compute([[maybe_unused]] InputContext& op_input, [[maybe_unused]] OutputContext& op_output,
-               [[maybe_unused]] ExecutionContext& context) override {
-    std::cout << std::endl;
-    std::cout << "Hello World!" << std::endl;
-    std::cout << std::endl;
+  void compute(InputContext& /*op_input*/, OutputContext& /*op_output*/,
+               ExecutionContext& /*context*/) override {
+    static constexpr std::string_view k_greeting{"Hello World!"};
+    // Avoid std::endl (it flushes). Use '\n' for normal newlines.
+    std::cout << '\n' << k_greeting << '\n';
   }
 };
 
@@ -41,10 +43,13 @@ class HelloWorldOp : public Operator {
 class HelloWorldApp : public holoscan::Application {
  public:
   void compose() override {
-    using namespace holoscan;
+    //using namespace holoscan;
 
     // Define the operators
-    auto hello = make_operator<ops::HelloWorldOp>("hello", make_condition<CountCondition>(1));
+    //auto hello = make_operator<ops::HelloWorldOp>("hello", make_condition<CountCondition>(1));
+    // Define the operators (fully qualified to avoid using-directives)
+    auto hello = make_operator<holoscan::ops::HelloWorldOp>(
+	"hello", make_condition<holoscan::CountCondition>(1));
 
     // Define the one-operator workflow
     add_operator(hello);
