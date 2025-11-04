@@ -26,12 +26,14 @@ target_link_libraries(dune_wib
 # The GXF extensions are loaded by the GXF libraries - no need to include here
 file(RELATIVE_PATH install_lib_relative_path ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/${HOLOSCAN_INSTALL_LIB_DIR})
 set_target_properties(dune_wib PROPERTIES INSTALL_RPATH "\$ORIGIN/${install_lib_relative_path}")
+set_source_files_properties(dune_wib.cpp PROPERTIES LANGUAGE CUDA)
 
 # Install following the relative folder path
 file(RELATIVE_PATH app_relative_dest_path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(HOLOSCAN_INSTALL_EXAMPLE_SOURCE)
 # Install the source
+#install(FILES dune_wib.cu
 install(FILES dune_wib.cpp
   DESTINATION "${app_relative_dest_path}"
   COMPONENT holoscan-examples
