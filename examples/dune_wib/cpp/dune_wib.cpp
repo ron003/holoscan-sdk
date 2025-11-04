@@ -271,7 +271,7 @@ class MulTensorOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Launch kernel (in‑place)
     // --------------------------------------------------------------
-    const size_t N = static_cast<size_t>(tensor->size());
+    const size_t N = tensor->bytes() / sizeof(float);
     const float factor = get_arg<float>(args(), "multiply_factor");
 
     const int threads = 256;
@@ -339,7 +339,7 @@ class UDPSenderOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Copy tensor back to host (synchronous – fine for a demo)
     // --------------------------------------------------------------
-    const size_t N = static_cast<size_t>(tensor->size());
+    const size_t N = tensor->bytes() / sizeof(float);
     std::vector<float> host(N);
     cudaError_t err = cudaMemcpy(host.data(),
                                  tensor->data(),
