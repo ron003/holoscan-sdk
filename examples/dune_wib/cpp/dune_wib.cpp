@@ -11,8 +11,9 @@
  *********************************************************************/
 
 #include <holoscan/holoscan.hpp>               // umbrella public header
-#include <holoscan/core/domain/tensor.hpp>            // Tensor, PrimitiveType
-#include <holoscan/core/io_context.hpp>    // InputContext::get(), OutputContext::emit()
+#include <holoscan/core/operator.hpp>           // defines HOLOSCAN_OPERATOR_FORWARD_ARGS
+#include <holoscan/core/domain/tensor.hpp>            // Tensor, PrimitiveType, make_resource
+#include <holoscan/core/io_context.hpp>  // needed for the macro definition
 #include <cuda_runtime.h>                      // blockIdx, blockDim, threadIdx
 #include <arpa/inet.h>
 #include <errno.h>
@@ -24,6 +25,19 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <stdexcept>   // for std::runtime_error
+
+template <typename T>
+static T get_arg(const std::vector<holoscan::Arg>& args,
+                 const std::string& name) {
+  for (const auto& a : args) {
+    if (a.name() == name) {
+      // The stored value is a std::any; cast it to the requested type.
+      return std::any_cast<T>(a.value());
+    }
+  }
+  throw std::runtime_error("Argument `" + name + "` not found");
+}
 
 /* ------------------------------------------------------------------
  *  Helper structs / functions for the UDP protocol
@@ -117,21 +131,6 @@ __global__ void mul_by_factor_kernel(float* data,
 }
 
 /* ------------------------------------------------------------------
- *  Helper to fetch a typed argument from the `args()` vector.
- *  In v3 `args()` returns `std::vector<holoscan::Arg>`.
- * ------------------------------------------------------------------ */
-template <typename T>
-static T get_arg(const std::vector<holoscan::Arg>& args,
-                 const std::string& name) {
-  for (const auto& a : args) {
-    if (a.name() == name) {
-      return a.template value<T>();               // note the `template` keyword
-    }
-  }
-  throw std::runtime_error("Argument `" + name + "` not found");
-}
-
-/* ------------------------------------------------------------------
  *  Custom Holoscan operators (v3 API)
  * ------------------------------------------------------------------ */
 
@@ -140,21 +139,19 @@ static T get_arg(const std::vector<holoscan::Arg>& args,
  * -------------------------------------------------------------- */
 class UDPReceiverOp : public holoscan::Operator {
  public:
-  // Register the operator – the macro must be *inside* the class body
+  // Register the operator – the macro lives in <holoscan/operator_def.hpp>
   HOLOSCAN_OPERATOR_FORWARD_ARGS(UDPReceiverOp)
 
-  UDPReceiverOp() = default;   // default ctor – the framework injects name/fragment
+  UDPReceiverOp() = default;                     // default ctor – framework fills in name/fragment
 
-  /*** Operator specification ***/
   void setup(holoscan::OperatorSpec& spec) override {
     // No external trigger – we just poll the socket.
     spec.output<std::vector<char>>("metadata");
     spec.output<std::shared_ptr<holoscan::Tensor>>("tensor");
   }
 
-  /*** One‑time initialization ***/
   void initialize() override {
-    // The listen port is supplied as an operator argument
+    // Arguments are supplied when the operator is created in compose().
     listen_port_ = static_cast<uint16_t>(get_arg<int>(args(), "listen_port"));
 
     socket_fd_ = ::socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
@@ -177,10 +174,12 @@ class UDPReceiverOp : public holoscan::Operator {
     HOLOSCAN_LOG_INFO("UDPReceiver listening on port {}", listen_port_);
   }
 
-  /*** Per‑tick processing ***/
-  void compute(holoscan::InputContext&  op_input,
-               holoscan::OutputContext& op_output,
-               holoscan::ExecutionContext& /*exec_context*/) override {
+  // --------------------------------------------------------------
+  //  The new v3 compute signature
+  // --------------------------------------------------------------
+  void compute(holoscan::InputContext&  input,
+               holoscan::OutputContext& output,
+               holoscan::ExecutionContext& /*exec*/) override {
     // --------------------------------------------------------------
     //  Non‑blocking receive
     // --------------------------------------------------------------
@@ -209,16 +208,16 @@ class UDPReceiverOp : public holoscan::Operator {
     // --------------------------------------------------------------
     const size_t N = host_data.size();
 
-    // Shape is a simple vector of int64_t
+    // Shape is a vector of int64_t
     std::vector<int64_t> shape{static_cast<int64_t>(N)};
 
-    // Use the fragment’s resource‑factory to create the Tensor
-    auto tensor = fragment()->make_resource<holoscan::Tensor>(
+    // The fragment is reachable from the *input* context
+    auto tensor = input.fragment()->make_resource<holoscan::Tensor>(
         shape,
         holoscan::PrimitiveType::kFloat32,
         /*device=*/0);
 
-    // Async copy – default CUDA stream (0) is fine for the demo
+    // Async copy – default stream (0) is sufficient for this demo
     cudaError_t err = cudaMemcpyAsync(
         tensor->data(),
         host_data.data(),
@@ -226,21 +225,22 @@ class UDPReceiverOp : public holoscan::Operator {
         cudaMemcpyHostToDevice,
         0);
     if (err != cudaSuccess) {
-      HOLOSCAN_LOG_ERROR("cudaMemcpyAsync(H2D) failed: {}", cudaGetErrorString(err));
+      HOLOSCAN_LOG_ERROR("cudaMemcpyAsync(H2D) failed: {}",
+                         cudaGetErrorString(err));
       return;
     }
 
     // --------------------------------------------------------------
-    //  Emit outputs (data first, name second)
+    //  Emit the outputs (data first, name second)
     // --------------------------------------------------------------
-    op_output.emit(std::move(metadata), "metadata");
-    op_output.emit(std::move(tensor),    "tensor");
+    output.emit(std::move(metadata), "metadata");
+    output.emit(std::move(tensor),    "tensor");
   }
 
  private:
   int socket_fd_{-1};
   uint16_t listen_port_{0};
-  static constexpr size_t max_packet_size_ = 8 * 1024 * 1024;  // 8 MiB
+  static constexpr size_t max_packet_size_ = 8 * 1024 * 1024;   // 8 MiB
 };
 
 /* --------------------------------------------------------------
@@ -259,14 +259,14 @@ class MulTensorOp : public holoscan::Operator {
     spec.output<std::shared_ptr<holoscan::Tensor>>("tensor");
   }
 
-  void compute(holoscan::InputContext&  op_input,
-               holoscan::OutputContext& op_output,
-               holoscan::ExecutionContext& /*exec_context*/) override {
+  void compute(holoscan::InputContext&  input,
+               holoscan::OutputContext& output,
+               holoscan::ExecutionContext& /*exec*/) override {
     // --------------------------------------------------------------
     //  Grab inputs
     // --------------------------------------------------------------
-    const auto& meta   = op_input.template get<std::vector<char>>("metadata");
-    auto tensor        = op_input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
+    const auto& meta   = input.template get<std::vector<char>>("metadata");
+    auto tensor        = input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
 
     // --------------------------------------------------------------
     //  Launch kernel (in‑place)
@@ -289,8 +289,8 @@ class MulTensorOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Forward downstream
     // --------------------------------------------------------------
-    op_output.emit(meta,  "metadata");
-    op_output.emit(std::move(tensor), "tensor");
+    output.emit(meta,  "metadata");
+    output.emit(std::move(tensor), "tensor");
   }
 };
 
@@ -330,11 +330,11 @@ class UDPSenderOp : public holoscan::Operator {
     HOLOSCAN_LOG_INFO("UDPSender will send to {}:{}", dst_ip, dst_port);
   }
 
-  void compute(holoscan::InputContext&  op_input,
-               holoscan::OutputContext& /*op_output*/,   // no downstream outputs
-               holoscan::ExecutionContext& /*exec_context*/) override {
-    const auto& meta   = op_input.template get<std::vector<char>>("metadata");
-    auto tensor        = op_input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
+  void compute(holoscan::InputContext&  input,
+               holoscan::OutputContext& /*output*/,   // we don’t emit anything downstream
+               holoscan::ExecutionContext& /*exec*/) override {
+    const auto& meta   = input.template get<std::vector<char>>("metadata");
+    auto tensor        = input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
 
     // --------------------------------------------------------------
     //  Copy tensor back to host (synchronous – fine for a demo)
@@ -439,7 +439,7 @@ int main(int argc, char** argv) {
   float factor          = std::stof(argv[4]);
   int   gpu_id          = std::stoi(argv[5]);
 
-  // Choose the CUDA device **before** any Holoscan objects are created
+  // Choose the CUDA device *before* any Holoscan objects are created
   cudaSetDevice(gpu_id);
 
   auto app = std::make_shared<UdpDemoApp>();
@@ -448,6 +448,6 @@ int main(int argc, char** argv) {
   app->set_dest_port(dest_port);
   app->set_factor(factor);
 
-  app->run();          // run() returns void in v3
+  app->run();          // v3 run() returns void
   return 0;
 }
