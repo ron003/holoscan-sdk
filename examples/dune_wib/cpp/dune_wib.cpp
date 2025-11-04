@@ -10,22 +10,11 @@
  *  No Boost/ASIO – pure POSIX sockets.
  *********************************************************************/
 
-#include <holoscan/holoscan.hpp>               // umbrella public header
-#include <holoscan/core/operator.hpp>           // defines HOLOSCAN_OPERATOR_FORWARD_ARGS
-#include <holoscan/core/domain/tensor.hpp>            // Tensor, PrimitiveType, make_resource
-#include <holoscan/core/io_context.hpp>  // needed for the macro definition
-#include <cuda_runtime.h>                      // blockIdx, blockDim, threadIdx
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <cstring>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
-#include <stdexcept>   // for std::runtime_error
+#include "dune_wib.hpp"
+#include <holoscan/core/domain/tensor.hpp>  // Tensor, PrimitiveType, make_resource
+#include <holoscan/core/io_context.hpp>     // needed for the macro definition
+#include <holoscan/core/operator.hpp>       // defines HOLOSCAN_OPERATOR_FORWARD_ARGS
+#include <holoscan/holoscan.hpp>            // umbrella public header
 
 template <typename T>
 static T get_arg(const std::vector<holoscan::Arg>& args,
@@ -271,13 +260,13 @@ class MulTensorOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Launch kernel (in‑place)
     // --------------------------------------------------------------
-    const size_t N = tensor->bytes() / sizeof(float);
+    const size_t N = tensor->get()->nbytes() / sizeof(float);
     const float factor = get_arg<float>(args(), "multiply_factor");
 
     const int threads = 256;
     const int blocks = static_cast<int>((N + threads - 1) / threads);
 
-    float* dev_ptr = static_cast<float*>(tensor->data());
+    float* dev_ptr = static_cast<float*>(tensor->get()->data());
 
     mul_by_factor_kernel<<<blocks, threads, 0, 0>>>(dev_ptr, N, factor);
     cudaError_t err = cudaGetLastError();
@@ -339,12 +328,10 @@ class UDPSenderOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Copy tensor back to host (synchronous – fine for a demo)
     // --------------------------------------------------------------
-    const size_t N = tensor->bytes() / sizeof(float);
+    const size_t N = tensor->get()->nbytes() / sizeof(float);
     std::vector<float> host(N);
-    cudaError_t err = cudaMemcpy(host.data(),
-                                 tensor->data(),
-                                 N * sizeof(float),
-                                 cudaMemcpyDeviceToHost);
+    cudaError_t err =
+        cudaMemcpy(host.data(), tensor->get()->data(), N * sizeof(float), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
       HOLOSCAN_LOG_ERROR("cudaMemcpy(D2H) failed: {}", cudaGetErrorString(err));
       return;
