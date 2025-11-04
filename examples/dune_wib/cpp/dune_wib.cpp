@@ -211,10 +211,10 @@ class UDPReceiverOp : public holoscan::Operator {
     // Shape is a vector of int64_t
     std::vector<int64_t> shape{static_cast<int64_t>(N)};
 
-    // The fragment is reachable from the *input* context
-    auto tensor = input.fragment()->make_resource<holoscan::Tensor>(
+    // The fragment is reachable via the operator’s protected `fragment()` method
+    auto tensor = fragment()->make_resource<holoscan::Tensor>(
         shape,
-        holoscan::PrimitiveType::kFloat32,
+        holoscan::ArgElementType::kFloat32,
         /*device=*/0);
 
     // Async copy – default stream (0) is sufficient for this demo
