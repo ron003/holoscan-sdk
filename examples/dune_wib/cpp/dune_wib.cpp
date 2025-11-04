@@ -265,8 +265,8 @@ class MulTensorOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Grab inputs
     // --------------------------------------------------------------
-    const auto& meta   = input.template get<std::vector<char>>("metadata");
-    auto tensor        = input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
+    const auto& meta   = input.template receive<std::vector<char>>("metadata");
+    auto tensor        = input.template receive<std::shared_ptr<holoscan::Tensor>>("tensor");
 
     // --------------------------------------------------------------
     //  Launch kernel (in‑place)
@@ -333,8 +333,8 @@ class UDPSenderOp : public holoscan::Operator {
   void compute(holoscan::InputContext&  input,
                holoscan::OutputContext& /*output*/,   // we don’t emit anything downstream
                holoscan::ExecutionContext& /*exec*/) override {
-    const auto& meta   = input.template get<std::vector<char>>("metadata");
-    auto tensor        = input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
+    const auto& meta   = input.template receive<std::vector<char>>("metadata");
+    auto tensor        = input.template receive<std::shared_ptr<holoscan::Tensor>>("tensor");
 
     // --------------------------------------------------------------
     //  Copy tensor back to host (synchronous – fine for a demo)
