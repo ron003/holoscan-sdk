@@ -125,7 +125,7 @@ __global__ void mul_by_factor_kernel(float* data,
 class UDPReceiverOp : public holoscan::Operator {
  public:
   // Register the operator – the macro must be inside the class definition
-  HOLOSCAN_OPERATOR_INFO(UDPReceiverOp, "udp_receiver", "UDPReceiver");
+  HOLOSCAN_OPERATOR_FORWARD_ARGS(UDPReceiverOp);
 
   UDPReceiverOp() = default;   // default ctor – the framework injects name/fragment
 
@@ -235,7 +235,7 @@ class UDPReceiverOp : public holoscan::Operator {
  * -------------------------------------------------------------- */
 class MulTensorOp : public holoscan::Operator {
  public:
-  HOLOSCAN_OPERATOR_INFO(MulTensorOp, "mul_tensor", "MulTensor");
+  HOLOSCAN_OPERATOR_FORWARD_ARGS(MulTensorOp);
   MulTensorOp() = default;
 
   void setup(holoscan::OperatorSpec& spec) override {
@@ -291,7 +291,7 @@ class MulTensorOp : public holoscan::Operator {
  * -------------------------------------------------------------- */
 class UDPSenderOp : public holoscan::Operator {
  public:
-  HOLOSCAN_OPERATOR_INFO(UDPSenderOp, "udp_sender", "UDPSender");
+  HOLOSCAN_OPERATOR_FORWARD_ARGS(UDPSenderOp);
   UDPSenderOp() = default;
 
   void setup(holoscan::OperatorSpec& spec) override {
