@@ -1,7 +1,7 @@
 /*********************************************************************
  * Holoscan UDP demo – updated for Holoscan SDK v3.6.1
  *
- *  • Receives UDP packets (metadata + raw float data)
+ *  • Receives a UDP packet (metadata + raw float data)
  *  • Turns the raw data into a holoscan::Tensor (GPU)
  *  • Runs a tiny CUDA kernel that multiplies each element by a factor
  *  • Packs the processed data together with the original metadata
@@ -10,10 +10,9 @@
  *  No Boost/ASIO – pure POSIX sockets.
  *********************************************************************/
 
-#include <holoscan/holoscan.hpp>               // umbrella header – brings in everything public
-#include <holoscan/core/domain/tensor.hpp>     // TensorShape, PrimitiveType, make_resource
-//#include <holoscan/core/input_context.hpp>    // InputContext::get()
-#include <holoscan/core/io_context.hpp>   // InputContext::get(), OutputContext::emit()
+#include <holoscan/holoscan.hpp>               // umbrella public header
+#include <holoscan/core/domain/tensor.hpp>            // Tensor, PrimitiveType
+#include <holoscan/core/io_context.hpp>    // InputContext::get(), OutputContext::emit()
 #include <cuda_runtime.h>                      // blockIdx, blockDim, threadIdx
 #include <arpa/inet.h>
 #include <errno.h>
@@ -25,7 +24,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <unordered_map>   // only used in the Application to hold the arguments
 
 /* ------------------------------------------------------------------
  *  Helper structs / functions for the UDP protocol
@@ -119,14 +117,16 @@ __global__ void mul_by_factor_kernel(float* data,
 }
 
 /* ------------------------------------------------------------------
- *  Helper to fetch an argument from the vector that `args()` returns.
- *  (In v3 the API gives you a `std::vector<holoscan::Arg>`.)
+ *  Helper to fetch a typed argument from the `args()` vector.
+ *  In v3 `args()` returns `std::vector<holoscan::Arg>`.
  * ------------------------------------------------------------------ */
 template <typename T>
 static T get_arg(const std::vector<holoscan::Arg>& args,
                  const std::string& name) {
   for (const auto& a : args) {
-    if (a.name() == name) { return a.value<T>(); }
+    if (a.name() == name) {
+      return a.template value<T>();               // note the `template` keyword
+    }
   }
   throw std::runtime_error("Argument `" + name + "` not found");
 }
@@ -140,9 +140,7 @@ static T get_arg(const std::vector<holoscan::Arg>& args,
  * -------------------------------------------------------------- */
 class UDPReceiverOp : public holoscan::Operator {
  public:
-  // Register the operator – the macro must be *inside* the class definition.
-  // The plain FORWARD_ARGS version is enough because we inherit directly from
-  // holoscan::Operator.
+  // Register the operator – the macro must be *inside* the class body
   HOLOSCAN_OPERATOR_FORWARD_ARGS(UDPReceiverOp)
 
   UDPReceiverOp() = default;   // default ctor – the framework injects name/fragment
@@ -150,15 +148,13 @@ class UDPReceiverOp : public holoscan::Operator {
   /*** Operator specification ***/
   void setup(holoscan::OperatorSpec& spec) override {
     // No external trigger – we just poll the socket.
-    spec.output<std::vector<char>>("metadata")
-        .doc("Raw metadata block (unchanged)");
-    spec.output<std::shared_ptr<holoscan::Tensor>>("tensor")
-        .doc("GPU tensor containing the float data");
+    spec.output<std::vector<char>>("metadata");
+    spec.output<std::shared_ptr<holoscan::Tensor>>("tensor");
   }
 
   /*** One‑time initialization ***/
   void initialize() override {
-    // The listen port is supplied as an operator argument (see compose()).
+    // The listen port is supplied as an operator argument
     listen_port_ = static_cast<uint16_t>(get_arg<int>(args(), "listen_port"));
 
     socket_fd_ = ::socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
@@ -213,28 +209,29 @@ class UDPReceiverOp : public holoscan::Operator {
     // --------------------------------------------------------------
     const size_t N = host_data.size();
 
-    // TensorShape is a vector of int64_t
-    holoscan::TensorShape shape{static_cast<int64_t>(N)};
+    // Shape is a simple vector of int64_t
+    std::vector<int64_t> shape{static_cast<int64_t>(N)};
+
     // Use the fragment’s resource‑factory to create the Tensor
     auto tensor = fragment()->make_resource<holoscan::Tensor>(
         shape,
         holoscan::PrimitiveType::kFloat32,
         /*device=*/0);
 
-    // Async copy – we just use the default stream (0)
+    // Async copy – default CUDA stream (0) is fine for the demo
     cudaError_t err = cudaMemcpyAsync(
         tensor->data(),
         host_data.data(),
         N * sizeof(float),
         cudaMemcpyHostToDevice,
-        0);                 // default stream
+        0);
     if (err != cudaSuccess) {
       HOLOSCAN_LOG_ERROR("cudaMemcpyAsync(H2D) failed: {}", cudaGetErrorString(err));
       return;
     }
 
     // --------------------------------------------------------------
-    //  Emit the outputs (name is the *second* argument)
+    //  Emit outputs (data first, name second)
     // --------------------------------------------------------------
     op_output.emit(std::move(metadata), "metadata");
     op_output.emit(std::move(tensor),    "tensor");
@@ -255,15 +252,11 @@ class MulTensorOp : public holoscan::Operator {
   MulTensorOp() = default;
 
   void setup(holoscan::OperatorSpec& spec) override {
-    spec.input<std::vector<char>>("metadata")
-        .doc("Metadata that should be passed through unchanged");
-    spec.input<std::shared_ptr<holoscan::Tensor>>("tensor")
-        .doc("GPU tensor to be multiplied");
+    spec.input<std::vector<char>>("metadata");
+    spec.input<std::shared_ptr<holoscan::Tensor>>("tensor");
 
-    spec.output<std::vector<char>>("metadata")
-        .doc("Same metadata block");
-    spec.output<std::shared_ptr<holoscan::Tensor>>("tensor")
-        .doc("Tensor after multiplication");
+    spec.output<std::vector<char>>("metadata");
+    spec.output<std::shared_ptr<holoscan::Tensor>>("tensor");
   }
 
   void compute(holoscan::InputContext&  op_input,
@@ -272,8 +265,8 @@ class MulTensorOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Grab inputs
     // --------------------------------------------------------------
-    const auto& meta   = op_input.get<std::vector<char>>("metadata");
-    auto tensor        = op_input.get<std::shared_ptr<holoscan::Tensor>>("tensor");
+    const auto& meta   = op_input.template get<std::vector<char>>("metadata");
+    auto tensor        = op_input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
 
     // --------------------------------------------------------------
     //  Launch kernel (in‑place)
@@ -310,10 +303,8 @@ class UDPSenderOp : public holoscan::Operator {
   UDPSenderOp() = default;
 
   void setup(holoscan::OperatorSpec& spec) override {
-    spec.input<std::vector<char>>("metadata")
-        .doc("Metadata to embed in the outgoing packet");
-    spec.input<std::shared_ptr<holoscan::Tensor>>("tensor")
-        .doc("GPU tensor that has been processed");
+    spec.input<std::vector<char>>("metadata");
+    spec.input<std::shared_ptr<holoscan::Tensor>>("tensor");
   }
 
   void initialize() override {
@@ -342,8 +333,8 @@ class UDPSenderOp : public holoscan::Operator {
   void compute(holoscan::InputContext&  op_input,
                holoscan::OutputContext& /*op_output*/,   // no downstream outputs
                holoscan::ExecutionContext& /*exec_context*/) override {
-    const auto& meta   = op_input.get<std::vector<char>>("metadata");
-    auto tensor        = op_input.get<std::shared_ptr<holoscan::Tensor>>("tensor");
+    const auto& meta   = op_input.template get<std::vector<char>>("metadata");
+    auto tensor        = op_input.template get<std::shared_ptr<holoscan::Tensor>>("tensor");
 
     // --------------------------------------------------------------
     //  Copy tensor back to host (synchronous – fine for a demo)
@@ -448,7 +439,7 @@ int main(int argc, char** argv) {
   float factor          = std::stof(argv[4]);
   int   gpu_id          = std::stoi(argv[5]);
 
-  // Choose the CUDA device before any Holoscan objects are created
+  // Choose the CUDA device **before** any Holoscan objects are created
   cudaSetDevice(gpu_id);
 
   auto app = std::make_shared<UdpDemoApp>();
