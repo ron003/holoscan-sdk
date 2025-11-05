@@ -1390,6 +1390,29 @@
             ]
         },
         {
+            "name": "(gdb) examples/dune_wib/cpp",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu/examples/dune_wib/cpp/dune_wib",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "/workspace/holoscan-sdk/build-cu12-aarch64-dgpu",
+            "environment": [
+                {
+                    "name": "HOLOSCAN_LOG_LEVEL",
+                    "value": "DEBUG"
+                },
+            ],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "(gdb) examples/hello_world/python",
             "type": "cppdbg",
             "request": "launch",

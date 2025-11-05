@@ -279,9 +279,8 @@ class UDPReceiverOp : public holoscan::Operator {
 
     // The fragment is reachable via the operator’s protected `fragment()` method
     auto dltensor_sp = std::make_shared<DLManagedTensor>(*make_dl_managed_tensor_float(64 * 64));
-    auto tensor = fragment()->make_resource<holoscan::Tensor>(
-        // shape,holoscan::ArgElementType::kFloat32,/*device=*/0
-        dltensor_sp.get());
+    auto tensor = new holoscan::Tensor(dltensor_sp.get());
+    // auto tensor = fragment()->make_resource<holoscan::Tensor>(dltensor_sp.get());
 
     // Async copy – default stream (0) is sufficient for this demo
     cudaError_t err = cudaMemcpyAsync(
