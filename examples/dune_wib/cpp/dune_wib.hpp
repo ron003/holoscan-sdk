@@ -1,3 +1,4 @@
+/* Copyright Me */
 #include <cuda_runtime.h>                      // blockIdx, blockDim, threadIdx
 #include <arpa/inet.h>
 #include <errno.h>
