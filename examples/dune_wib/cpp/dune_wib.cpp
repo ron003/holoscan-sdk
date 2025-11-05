@@ -322,16 +322,30 @@ class UDPSenderOp : public holoscan::Operator {
   void compute(holoscan::InputContext&  input,
                holoscan::OutputContext& /*output*/,   // we don’t emit anything downstream
                holoscan::ExecutionContext& /*exec*/) override {
-    const auto& meta   = input.template receive<std::vector<char>>("metadata");
-    auto tensor        = input.template receive<std::shared_ptr<holoscan::Tensor>>("tensor");
+    const auto& meta_res = input.template receive<std::vector<char>>("metadata");
+    auto tensor_res = input.template receive<std::shared_ptr<holoscan::Tensor>>("tensor");
+
+    // If either receive failed, log and abort this execution tick.
+    if (!meta_res) {
+      HOLOSCAN_LOG_ERROR("Failed to receive metadata: {}", meta_res.error().what());
+      return;
+    }
+    if (!tensor_res) {
+      HOLOSCAN_LOG_ERROR("Failed to receive tensor: {}", tensor_res.error().what());
+      return;
+    }
+
+    // Extract the actual values from the tl::expected objects.
+    const std::vector<char>& meta = meta_res.value();  // or *meta_res
+    auto tensor = tensor_res.value();                  // shared_ptr<Tensor>
 
     // --------------------------------------------------------------
     //  Copy tensor back to host (synchronous – fine for a demo)
     // --------------------------------------------------------------
-    const size_t N = tensor->get()->nbytes() / sizeof(float);
+    const size_t N = tensor->nbytes() / sizeof(float);
     std::vector<float> host(N);
     cudaError_t err =
-        cudaMemcpy(host.data(), tensor->get()->data(), N * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(host.data(), tensor->data(), N * sizeof(float), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
       HOLOSCAN_LOG_ERROR("cudaMemcpy(D2H) failed: {}", cudaGetErrorString(err));
       return;
