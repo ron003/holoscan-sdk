@@ -1,4 +1,5 @@
 /*********************************************************************
+ * Copyright 2025 Me
  * Holoscan UDP demo – updated for Holoscan SDK v3.6.1
  *
  *  • Receives a UDP packet (metadata + raw float data)
@@ -26,6 +27,82 @@ static T get_arg(const std::vector<holoscan::Arg>& args,
     }
   }
   throw std::runtime_error("Argument `" + name + "` not found");
+}
+
+/** Create a DLManagedTensor that owns a CUDA buffer of `num_elems` floats.
+ *
+ *  The returned pointer must be passed to `Fragment::make_resource<Tensor>()`.
+ *  The `deleter` lambda frees the CUDA memory and then deletes the
+ *  DLManagedTensor structure itself.
+ */
+static DLManagedTensor* make_dl_managed_tensor_float(size_t num_elems) {
+  // --------------------------------------------------------------
+  // 1️⃣  Allocate the raw device buffer (CUDA malloc)
+  // --------------------------------------------------------------
+  float* d_ptr = nullptr;
+  cudaError_t cu_err = cudaMalloc(&d_ptr, num_elems * sizeof(float));
+  if (cu_err != cudaSuccess) {
+    throw std::runtime_error(std::string("cudaMalloc failed: ") + cudaGetErrorString(cu_err));
+  }
+
+  // --------------------------------------------------------------
+  // 2️⃣  Allocate the DLManagedTensor wrapper (plain `new` is fine)
+  // --------------------------------------------------------------
+  DLManagedTensor* dlt = new DLManagedTensor;
+
+  // --------------------------------------------------------------
+  // 3️⃣  Fill the `DLTensor` fields (the *payload* of the wrapper)
+  // --------------------------------------------------------------
+  // – data pointer
+  dlt->dl_tensor.data = static_cast<void*>(d_ptr);
+
+  // – device: DLDevice{device_type, device_id}
+  //   kDLGPU == 2 (the enum value used by DLPack)
+  dlt->dl_tensor.device = {static_cast<DLDeviceType>(2), 0};
+
+  // – number of dimensions (1‑D array of floats)
+  dlt->dl_tensor.ndim = 1;
+
+  // – shape array (must stay alive for the lifetime of the tensor)
+  //   We allocate it on the heap so that the pointer stays valid.
+  int64_t* shape = new int64_t[1];
+  shape[0] = static_cast<int64_t>(num_elems);
+  dlt->dl_tensor.shape = shape;
+
+  // – strides: optional, can be nullptr for contiguous memory
+  dlt->dl_tensor.strides = nullptr;
+
+  // – byte offset inside the buffer (normally 0)
+  dlt->dl_tensor.byte_offset = 0;
+
+  // – data type (float32)
+  DLDataType dtype = {};
+  dtype.code = kDLFloat;  // 2 == float
+  dtype.bits = 32;
+  dtype.lanes = 1;
+  dlt->dl_tensor.dtype = dtype;
+
+  // --------------------------------------------------------------
+  // 4️⃣  Store a pointer that the deleter can use (optional)
+  // --------------------------------------------------------------
+  dlt->manager_ctx = nullptr;  // we don’t need extra context here
+
+  // --------------------------------------------------------------
+  // 5️⃣  Provide a deleter that frees *both* the CUDA memory *and*
+  //    the auxiliary heap‑allocated objects (shape array, wrapper)
+  // --------------------------------------------------------------
+  dlt->deleter = [](DLManagedTensor* self) {
+    // a) free the device buffer
+    if (self->dl_tensor.data) {
+      cudaFree(self->dl_tensor.data);
+    }
+    // b) free the shape array we allocated earlier
+    delete[] self->dl_tensor.shape;
+    // c) finally delete the wrapper itself
+    delete self;
+  };
+
+  return dlt;
 }
 
 /* ------------------------------------------------------------------
@@ -201,10 +278,10 @@ class UDPReceiverOp : public holoscan::Operator {
     std::vector<int64_t> shape{static_cast<int64_t>(N)};
 
     // The fragment is reachable via the operator’s protected `fragment()` method
+    auto dltensor_sp = std::make_shared<DLManagedTensor>(*make_dl_managed_tensor_float(64 * 64));
     auto tensor = fragment()->make_resource<holoscan::Tensor>(
-        shape,
-        holoscan::ArgElementType::kFloat32,
-        /*device=*/0);
+        // shape,holoscan::ArgElementType::kFloat32,/*device=*/0
+        dltensor_sp.get());
 
     // Async copy – default stream (0) is sufficient for this demo
     cudaError_t err = cudaMemcpyAsync(
@@ -340,7 +417,7 @@ class UDPSenderOp : public holoscan::Operator {
     // --------------------------------------------------------------
     //  Build a new UDP packet and send it
     // --------------------------------------------------------------
-    std::vector<char> packet = build_udp_packet(meta, host);
+    std::vector<char> packet = build_udp_packet(*meta, host);
     ssize_t sent = ::sendto(socket_fd_,
                             packet.data(),
                             packet.size(),
