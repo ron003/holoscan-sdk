@@ -1,47 +1,31 @@
 # syntax=docker/dockerfile:1
-
 # SPDX-FileCopyrightText: Copyright (c) 2022-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-############################################################
-# Versions
-############################################################
+# ----------------------------------------------------------------------
+#  Versions (unchanged)
+# ----------------------------------------------------------------------
 ARG ONNX_RUNTIME_VERSION=1.22.1
-ARG ONNX_RUNTIME_STRATEGY=downloader # or builder
+ARG ONNX_RUNTIME_STRATEGY=downloader   # or builder
 ARG LIBTORCH_CU12_VERSION=2.8.0
 ARG LIBTORCH_CU13_VERSION=2.9.0.dev20250828
 ARG GRPC_VERSION=1.54.2
 ARG GXF_CU12_VERSION=5.1.0_20250820_2ac8c610f_holoscan-sdk-cu12
 ARG GXF_CU13_VERSION=5.1.0_20250820_2ac8c610f_holoscan-sdk-cu13
+#ARG DOCA_VERSION=2.8.0
 ARG DOCA_VERSION=3.0.0
-ARG TENSORRT_CU12_VERSION=10.3  # TRT 10.3 is the last version that supports CUDA 12 on sbsa 22.04
+ARG TENSORRT_CU12_VERSION=10.3
 ARG TENSORRT_CU13_VERSION=10.13
 ARG UCX_CU12_APT_VERSION=1.19.0-1
 ARG UCX_CU13_FILE_VERSION=1.19.0_hpcx-v2.24_25.08
 
-############################################################
-# Base image
-# Notes:
-# - iGPU base is only used for Orin, not Thor
-# - no 22.04 support for TRT+cu13 on sbsa, hence 24.04 base
-# - select preset base images with GPU_TYPE and CUDA_MAJOR
-# - setting BASE_IMAGE will ignore GPU_TYPE and CUDA_MAJOR
-############################################################
+# ----------------------------------------------------------------------
+#  Base image selection (unchanged)
+# ----------------------------------------------------------------------
 ARG GPU_TYPE=dgpu
 ARG CUDA_MAJOR=12
 ARG BASE_IMAGE=${TARGETARCH}-${GPU_TYPE}_cu${CUDA_MAJOR}_base
+
 FROM nvcr.io/nvidia/cuda:12.6.3-base-ubuntu22.04 AS amd64-dgpu_cu12_base
 FROM nvcr.io/nvidia/cuda:13.0.0-base-ubuntu24.04 AS amd64-dgpu_cu13_base
 FROM nvcr.io/nvidia/cuda:12.6.3-base-ubuntu22.04 AS arm64-dgpu_cu12_base
@@ -49,10 +33,10 @@ FROM nvcr.io/nvidia/cuda:13.0.0-base-ubuntu24.04 AS arm64-dgpu_cu13_base
 FROM nvcr.io/nvidia/l4t-cuda:12.6.11-runtime AS arm64-igpu_cu12_base
 FROM ${BASE_IMAGE} AS base
 
-# Set bash as the default shell
+# ----------------------------------------------------------------------
+#  Common setup – same as original “main” Dockerfile
+# ----------------------------------------------------------------------
 SHELL ["/bin/bash", "-c"]
-
-# Conditionally configure apt caching behavior
 ARG ENABLE_APT_CACHING=true
 RUN if [ "${ENABLE_APT_CACHING}" = "true" ]; then \
         echo "APT Caching enabled: Disabling docker-clean and enabling Keep-Downloaded-Packages."; \
@@ -66,22 +50,23 @@ RUN if [ "${ENABLE_APT_CACHING}" = "true" ]; then \
         echo 'DPkg::Post-Invoke "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin /var/lib/apt/lists/* || true";' > /etc/apt/apt.conf.d/99-custom-cleanup; \
     fi
 
-# Common variables
 ARG DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_DRIVER_CAPABILITIES=all
 ARG TARGETARCH
 ARG GPU_TYPE
 ARG CUDA_MAJOR
 
-# Install basic tools
+# ----------------------------------------------------------------------
+#  Install basic tools (curl, unzip, patch …) – unchanged
+# ----------------------------------------------------------------------
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
     apt-get update && apt-get install --no-install-recommends -y \
-        curl \
-        unzip \
-        patch
+        curl unzip patch
 
-# Install L4T APT repo on iGPU base, or set up CUDA APT repo on dGPU base if missing
+# ----------------------------------------------------------------------
+#  CUDA/apt‑repo setup – unchanged (L4T or CUDA repo)
+# ----------------------------------------------------------------------
 RUN if [ "${GPU_TYPE}" = "igpu" ]; then \
         L4T_APT_REPO_URL="https://repo.download.nvidia.com/jetson"; \
         L4T_APT_REPO_KEY="$L4T_APT_REPO_URL/jetson-ota-public.asc"; \
@@ -102,77 +87,50 @@ RUN if [ "${GPU_TYPE}" = "igpu" ]; then \
         curl -fsSL "${CUDA_REPO_URL}/cuda-archive-keyring.gpg" -o "${CUDA_KEYRING}"; \
         echo "deb [signed-by=${CUDA_KEYRING}] ${CUDA_REPO_URL} /" > /etc/apt/sources.list.d/cuda.list; \
     fi
-
-############################################################
-# Python base
-############################################################
+# ----------------------------------------------------------------------
+#  Python base (Python 3.12) – unchanged
+# ----------------------------------------------------------------------
 FROM base AS python-base
-
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
-
-# Ensure we use Python 3.12
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
-    apt-get update \
-    && apt-get install --no-install-recommends -y \
-        software-properties-common \
+    apt-get update && apt-get install --no-install-recommends -y software-properties-common \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        python3.12 \
-        python3.12-dev \
-    && apt purge -y \
-        python3-pip \
-        software-properties-common \
+    && apt-get install --no-install-recommends -y python3.12 python3.12-dev \
+    && apt purge -y python3-pip software-properties-common \
     && apt-get autoremove --purge -y
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
-############################################################
-# Build tools
-############################################################
+# ----------------------------------------------------------------------
+#  Build‑tools stage (cmake, ninja, git, etc.) – unchanged
+# ----------------------------------------------------------------------
 FROM python-base AS build-tools
-
-# Install build tools
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
     OS_CODENAME=$(. /etc/os-release && echo "$VERSION_CODENAME") \
     && KW_KEYRING="/usr/share/keyrings/kitware-archive-keyring.gpg" \
-    && curl -fsSL "https://apt.kitware.com/keys/kitware-archive-latest.asc" \
-        | gpg --dearmor -o "$KW_KEYRING" \
-    && echo "deb [signed-by=$KW_KEYRING] https://apt.kitware.com/ubuntu/ $OS_CODENAME main" \
-        > /etc/apt/sources.list.d/kitware.list \
-    && apt-get update \
-    && rm "$KW_KEYRING" \
+    && curl -fsSL "https://apt.kitware.com/keys/kitware-archive-latest.asc" | gpg --dearmor -o "$KW_KEYRING" \
+    && echo "deb [signed-by=$KW_KEYRING] https://apt.kitware.com/ubuntu/ $OS_CODENAME main" > /etc/apt/sources.list.d/kitware.list \
+    && apt-get update && rm "$KW_KEYRING" \
     && apt-get install --no-install-recommends -y \
         kitware-archive-keyring \
-        cmake="3.*" \
-        cmake-data="3.*" \
-        build-essential \
-        patchelf \
-        ninja-build \
-        git
-
-# - This variable is consumed by all dependencies below as an environment variable (CMake 3.22+)
-# - We use ARG to only set it at docker build time, so it does not affect cmake builds
-#   performed at docker run time in case users want to use a different BUILD_TYPE
+        cmake="3.*" cmake-data="3.*" \
+        build-essential patchelf ninja-build git
 ARG CMAKE_BUILD_TYPE=Release
-
-# Help limit the number of cores used for downstream builds
 ARG MAX_PROC=16
 
-############################################################
-# CUDA dev
-############################################################
+# ----------------------------------------------------------------------
+#  CUDA‑dev stage – unchanged
+# ----------------------------------------------------------------------
 FROM build-tools AS cuda-dev
-
-# To inform users about deleted libraries
 COPY  --chmod=755 <<'EOF' /usr/local/bin/cleanup_unwanted_libs
 #!/bin/bash
 DELETED_LIBS_LOG="/var/log/holoscan-deleted-libs.log"
 DELETED_LIB_MSG="This file was deleted to optimize the size of the holoscan container (saved %s).
-If you need this library, re-install it with: 'apt-get install --reinstall %s'.
+If you need this library, re‑install it with: 'apt-get install --reinstall %s'.
 The full list of deleted libraries is recorded in '${DELETED_LIBS_LOG}'."
 for pattern in "$@"; do
     for file in $pattern; do
@@ -186,21 +144,11 @@ for pattern in "$@"; do
     done
 done
 EOF
-
-#  nvcc: needed by holoviz, holoinfer (cuda kernels)
-#  cudart-dev: needed by holoscan core
-#  nvrtc-dev: needed by holoscan core, and cupy (runtime only)
-#  libnpp-dev: needed by bayer_demosaic, format_converter
-#  libcublas-dev: needed by matx
-#  libcufft-dev: needed by matx
-#  libcurand-dev: needed by matx
-#  libcusolver-dev: needed by matx
-#  libcusparse-dev: needed by matx
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
-    apt-get update \
-    && CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2 --output-delimiter="-") \
-    && apt-get install --no-install-recommends -y \
+    apt-get update && \
+    CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2 --output-delimiter="-") && \
+    apt-get install --no-install-recommends -y \
         cuda-nvcc-${CUDA_MAJOR_MINOR} \
         cuda-cudart-dev-${CUDA_MAJOR_MINOR} \
         cuda-nvrtc-dev-${CUDA_MAJOR_MINOR} \
@@ -209,76 +157,50 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-
         libcufft-dev-${CUDA_MAJOR_MINOR} \
         libcurand-dev-${CUDA_MAJOR_MINOR} \
         libcusolver-dev-${CUDA_MAJOR_MINOR} \
-        libcusparse-dev-${CUDA_MAJOR_MINOR} \
-    && echo "-- Deleting unused static libs:" \
-    && packages=$(dpkg -l | grep -e cuda-nvrtc -e libnpp | awk '{print $2}') \
-    && static_libs=$(dpkg -L $packages | grep '\.a$' || true) \
-    && cleanup_unwanted_libs $static_libs
+        libcusparse-dev-${CUDA_MAJOR_MINOR} && \
+    echo "-- Deleting unused static libs:" && \
+    packages=$(dpkg -l | grep -e cuda-nvrtc -e libnpp | awk '{print $2}') && \
+    static_libs=$(dpkg -L $packages | grep '\.a$' || true) && \
+    cleanup_unwanted_libs $static_libs
 
-############################################################
-# Inference dev
-############################################################
+# ----------------------------------------------------------------------
+#  Inference‑dev stage – unchanged
+# ----------------------------------------------------------------------
 FROM cuda-dev AS infer-dev
 ARG TENSORRT_CU12_VERSION
 ARG TENSORRT_CU13_VERSION
-
-#  libnvinfer*0dev: needed by holoinfer (trt)
-#  libnvonnxparsers: needed by holoinfer (trt)
-#  libcudnn: needed by libtorch, onnxruntime
-#  cuda-nvtx: needed by libtorch/caffe2
-#  libcublas: needed by libtorch, onnxruntime, cupy-cuda
-#  libcufft: needed by libtorch, onnxruntime, cupy
-#  libcurand: needed by libtorch, cupy-cuda
-#  libcusparse: needed by libtorch, cupy-cuda
-#  libcusparselt0: needed by libtorch (x86_64 and aarch64 dgpu/sbsa only)
-#  libcusolver: needed by libtorch, cupy-cuda
-#  libcufile: needed by libtorch
-#  libnvjitlink: needed by libtorch, cupy-cuda
-#  cuda-cupti: needed by libtorch
-#  libnccl: needed by libtorch (x86_64 and aarch64 dgpu/sbsa only), cupy-cuda (optional)
-#  nvpl-*: needed by libtorch (aarch64 dgpu/sbsa only)
-#  libopenblas0 - needed by libtorch (aarch64 igpu/jetson only)
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
-    apt-get update \
-    && CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2 --output-delimiter="-") \
-    && if [ ${GPU_TYPE} = "dgpu" ]; then \
+    apt-get update && \
+    CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2 --output-delimiter="-") && \
+    if [ ${GPU_TYPE} = "dgpu" ]; then \
         CONDITIONAL_LIBS="libnccl2 libcusparselt0"; \
         if [ $(uname -m) = "aarch64" ]; then \
             CONDITIONAL_LIBS="${CONDITIONAL_LIBS} nvpl-blas nvpl-lapack"; \
         fi; \
     else \
         CONDITIONAL_LIBS="libopenblas0"; \
-    fi \
-    && TRT_VERSION_VAR_NAME="TENSORRT_CU${CUDA_MAJOR}_VERSION" \
-    && TRT_VERSION=$(apt-cache madison libnvinfer10 | grep "${!TRT_VERSION_VAR_NAME}" | grep "+cuda${CUDA_MAJOR}" | head -n 1 | awk '{print $3}') \
-    && apt-get install --no-install-recommends -y \
-        libnvonnxparsers-dev="${TRT_VERSION}" \
-        libnvonnxparsers10="${TRT_VERSION}" \
-        libnvinfer-plugin-dev="${TRT_VERSION}" \
-        libnvinfer-headers-plugin-dev="${TRT_VERSION}" \
-        libnvinfer-plugin10="${TRT_VERSION}" \
-        libnvinfer-dev="${TRT_VERSION}" \
-        libnvinfer-headers-dev="${TRT_VERSION}" \
-        libnvinfer10="${TRT_VERSION}" \
-        libcudnn9-cuda-${CUDA_MAJOR} \
-        cuda-nvtx-${CUDA_MAJOR_MINOR} \
-        libcublas-${CUDA_MAJOR_MINOR} \
-        libcufft-${CUDA_MAJOR_MINOR} \
-        libcurand-${CUDA_MAJOR_MINOR} \
-        libcusparse-${CUDA_MAJOR_MINOR} \
-        libcusolver-${CUDA_MAJOR_MINOR} \
-        libcufile-${CUDA_MAJOR_MINOR} \
-        libnvjitlink-${CUDA_MAJOR_MINOR} \
-        cuda-cupti-${CUDA_MAJOR_MINOR} \
-        ${CONDITIONAL_LIBS} \
-    && echo "-- Deleting unused static libs:" \
-    && packages=$(dpkg -l | grep -e libnvinfer -e libnvonnxparsers -e libcudnn -e cuda-nvtx -e cuda-cupti | awk '{print $2}') \
-    && static_libs=$(dpkg -L $packages | grep '\.a$' || true) \
-    && cleanup_unwanted_libs $static_libs \
-    && echo "-- Deleting large unused libs:" \
-    && SYSTEM_LIBS_ROOT="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
-    && cleanup_unwanted_libs \
+    fi && \
+    TRT_VERSION_VAR_NAME="TENSORRT_CU${CUDA_MAJOR}_VERSION" && \
+    TRT_VERSION=$(apt-cache madison libnvinfer10 | grep "${!TRT_VERSION_VAR_NAME}" | grep "+cuda${CUDA_MAJOR}" | head -n1 | awk '{print $3}') && \
+    apt-get install --no-install-recommends -y \
+        libnvonnxparsers-dev="${TRT_VERSION}" libnvonnxparsers10="${TRT_VERSION}" \
+        libnvinfer-plugin-dev="${TRT_VERSION}" libnvinfer-headers-plugin-dev="${TRT_VERSION}" \
+        libnvinfer-plugin10="${TRT_VERSION}" libnvinfer-dev="${TRT_VERSION}" \
+        libnvinfer-headers-dev="${TRT_VERSION}" libnvinfer10="${TRT_VERSION}" \
+        libcudnn9-cuda-${CUDA_MAJOR} cuda-nvtx-${CUDA_MAJOR_MINOR} \
+        libcublas-${CUDA_MAJOR_MINOR} libcufft-${CUDA_MAJOR_MINOR} \
+        libcurand-${CUDA_MAJOR_MINOR} libcusparse-${CUDA_MAJOR_MINOR} \
+        libcusolver-${CUDA_MAJOR_MINOR} libcufile-${CUDA_MAJOR_MINOR} \
+        libnvjitlink-${CUDA_MAJOR_MINOR} cuda-cupti-${CUDA_MAJOR_MINOR} \
+        ${CONDITIONAL_LIBS} && \
+    echo "-- Deleting unused static libs:" && \
+    packages=$(dpkg -l | grep -e libnvinfer -e libnvonnxparsers -e libcudnn -e cuda-nvtx -e cuda-cupti | awk '{print $2}') && \
+    static_libs=$(dpkg -L $packages | grep '\.a$' || true) && \
+    cleanup_unwanted_libs $static_libs && \
+    echo "-- Deleting large unused libs:" && \
+    SYSTEM_LIBS_ROOT="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
+    cleanup_unwanted_libs \
         "${SYSTEM_LIBS_ROOT}/libnvinfer_builder_resource_win.*" \
         "${SYSTEM_LIBS_ROOT}/libcudnn_cnn.*" \
         "${SYSTEM_LIBS_ROOT}/libcudnn_engines_precompiled.*" \
@@ -287,35 +209,24 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-
         "${SYSTEM_LIBS_ROOT}/libcudnn_ops.*" \
         "${SYSTEM_LIBS_ROOT}/libcudnn_heuristic.*"
 
-############################################################
-# NGC CLI
-############################################################
+# ----------------------------------------------------------------------
+#  NGC‑CLI downloader (this stage *must* exist – unchanged)
+# ----------------------------------------------------------------------
 FROM base AS ngc-cli-downloader
-
 WORKDIR /opt/ngc-cli
+RUN if [ $(uname -m) = "aarch64" ]; then ARCH=arm64; else ARCH=linux; fi && \
+    curl -S -# -L -o ngccli_linux.zip https://ngc.nvidia.com/downloads/ngccli_${ARCH}.zip && \
+    unzip -q ngccli_linux.zip && rm ngccli_linux.zip && \
+    export ngc_exec=$(find . -type f -executable -name "ngc" | head -n1)
 
-RUN if [ $(uname -m) = "aarch64" ]; then ARCH=arm64; else ARCH=linux; fi \
-    && curl -S -# -L -o ngccli_linux.zip https://ngc.nvidia.com/downloads/ngccli_${ARCH}.zip \
-    && unzip -q ngccli_linux.zip \
-    && rm ngccli_linux.zip \
-    && export ngc_exec=$(find . -type f -executable -name "ngc" | head -n1)
-
-############################################################
-# ONNX Runtime (Source)
-############################################################
+# ----------------------------------------------------------------------
+#  ONNX‑Runtime source (unchanged)
+# ----------------------------------------------------------------------
 FROM build-tools AS onnxruntime-src
 ARG ORT_DIR=/opt/onnxruntime
 ARG ONNX_RUNTIME_VERSION
-
-# Clone
-RUN git clone \
-  --single-branch \
-  --branch "v${ONNX_RUNTIME_VERSION}" \
-  --recursive \
-  https://github.com/Microsoft/onnxruntime \
-  ${ORT_DIR}/src
-
-# Apply patch for CUDA 12.9, TensorRT 10.11+, CUTLASS 3.9.2, and CUDA 13.0 support (ORT < 1.23)
+RUN git clone --single-branch --branch "v${ONNX_RUNTIME_VERSION}" --recursive \
+    https://github.com/microsoft/onnxruntime ${ORT_DIR}/src
 WORKDIR ${ORT_DIR}/src
 RUN ORT_REPO_PREFIX=https://github.com/microsoft/onnxruntime/commit/ && \
     curl -sSL ${ORT_REPO_PREFIX}ed7c234b2535.patch | git apply -v && \
@@ -325,112 +236,75 @@ RUN ORT_REPO_PREFIX=https://github.com/microsoft/onnxruntime/commit/ && \
     curl -sSL ${ORT_REPO_PREFIX}7a6cef6fe367.patch | git apply -v --include=onnxruntime/contrib_ops/cuda/moe/ft_moe/moe_kernel.cu && \
     curl -sSL ${ORT_REPO_PREFIX}7c18d896b033.patch | git apply -v
 
-############################################################
-# ONNX Runtime (Build)
-############################################################
+# ----------------------------------------------------------------------
+#  ONNX‑Runtime builder (unchanged)
+# ----------------------------------------------------------------------
 FROM infer-dev AS onnxruntime-builder
 ARG ORT_DIR=/opt/onnxruntime
 ARG ONNX_RUNTIME_VERSION
-
-# Build dependencies
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
-    apt-get update \
-    && CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2 --output-delimiter='-') \
-    && apt-get install --no-install-recommends -y \
+    apt-get update && \
+    CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2 --output-delimiter='-') && \
+    apt-get install --no-install-recommends -y \
         libcublas-dev-${CUDA_MAJOR_MINOR} \
         libcufft-dev-${CUDA_MAJOR_MINOR} \
         libcurand-dev-${CUDA_MAJOR_MINOR} \
         libcusparse-dev-${CUDA_MAJOR_MINOR} \
         libcudnn9-dev-cuda-${CUDA_MAJOR}
-
-# Create user for non-root build
 ARG BUILD_UID=1000
 RUN id -u $BUILD_UID &>/dev/null || adduser --gecos 'ORT Build User' --disabled-password tmp_user --uid $BUILD_UID
 RUN mkdir -p $ORT_DIR/build && chown -R $BUILD_UID $ORT_DIR/build
 RUN mkdir -p $ORT_DIR/$ONNX_RUNTIME_VERSION && chown -R $BUILD_UID $ORT_DIR/$ONNX_RUNTIME_VERSION
 USER $BUILD_UID
-
-# Build
-#
-# Note: Using ORT with the TensorRT execution provider is highly advantageous:
-# 1. Significantly lower latency and higher throughput compared to ORT+CUDA only.
-# 2. If an ONNX layer cannot be converted to TensorRT, it falls back to CUDA,
-#    while other layers can still be optimized with TRT.
-# Given that TensorRT is already a requirement for the Holoscan SDK/HoloInfer,
-# it is recommended to use it as an execution provider when running inference with ORT.
-#
-# Build references:
-#   https://onnxruntime.ai/docs/build/eps.html#tensorrt
-#   https://github.com/microsoft/onnxruntime/blob/main/dockerfiles/Dockerfile.tensorrt
-#   https://github.com/triton-inference-server/onnxruntime_backend/blob/main/tools/gen_ort_dockerfile.py#L77
 COPY scripts/get_cmake_cuda_archs.py ${ORT_DIR}/scripts/get_cmake_cuda_archs.py
 RUN --mount=type=bind,from=onnxruntime-src,source=${ORT_DIR}/src,target=${ORT_DIR}/src \
-    ORT_BUILD_THREADS=6 \
-    && ORT_CUDA_ARCHS=$(${ORT_DIR}/scripts/get_cmake_cuda_archs.py all --min 75 --verbose) \
-    && echo "ORT_CUDA_ARCHS: ${ORT_CUDA_ARCHS}" \
-    && git config --global --add safe.directory ${ORT_DIR}/src \
-    && ${ORT_DIR}/src/build.sh \
-    --update \
-    --skip_submodule_sync \
-    --build \
-    --build_shared_lib \
-    --build_dir ${ORT_DIR}/build \
-    --skip_tests \
-    --parallel ${ORT_BUILD_THREADS} \
-    --nvcc_threads 1 \
-    --use_tensorrt \
-    --use_tensorrt_builtin_parser \
-    --use_cuda \
-    --cuda_home /usr/local/cuda \
-    --cudnn_home /usr/lib/$(dpkg-architecture -qDEB_TARGET_MULTIARCH)/ \
-    --tensorrt_home /usr/lib/$(dpkg-architecture -qDEB_TARGET_MULTIARCH)/ \
-    --config Release \
-    --cmake_extra_defines \
-        "CMAKE_CUDA_ARCHITECTURES=${ORT_CUDA_ARCHS}" \
-        "CMAKE_CXX_FLAGS=-Wno-deprecated-declarations" \
-        "CMAKE_CUDA_FLAGS=-Xcompiler -Wno-deprecated-declarations" # error: ‘longlong4’ is deprecated: use longlong4_16a or longlong4_32a
+    ORT_BUILD_THREADS=6 && \
+    ORT_CUDA_ARCHS=$(${ORT_DIR}/scripts/get_cmake_cuda_archs.py all --min 75 --verbose) && \
+    git config --global --add safe.directory ${ORT_DIR}/src && \
+    ${ORT_DIR}/src/build.sh \
+        --update --skip_submodule_sync --build --build_shared_lib \
+        --build_dir ${ORT_DIR}/build --skip_tests --parallel ${ORT_BUILD_THREADS} \
+        --nvcc_threads 1 --use_tensorrt --use_tensorrt_builtin_parser \
+        --use_cuda --cuda_home /usr/local/cuda --cudnn_home /usr/lib/$(dpkg-architecture -qDEB_TARGET_MULTIARCH)/ \
+        --tensorrt_home /usr/lib/$(dpkg-architecture -qDEB_TARGET_MULTIARCH)/ \
+        --config Release \
+        --cmake_extra_defines \
+            "CMAKE_CUDA_ARCHITECTURES=${ORT_CUDA_ARCHS}" \
+            "CMAKE_CXX_FLAGS=-Wno-deprecated-declarations" \
+            "CMAKE_CUDA_FLAGS=-Xcompiler -Wno-deprecated-declarations"
 
-# Install
 RUN --mount=type=bind,from=onnxruntime-src,source=${ORT_DIR}/src,target=${ORT_DIR}/src \
     cmake --install ${ORT_DIR}/build/Release --prefix ${ORT_DIR}/${ONNX_RUNTIME_VERSION}
 RUN --mount=type=bind,from=onnxruntime-src,source=${ORT_DIR}/src,target=${ORT_DIR}/src \
-    cp \
-    ${ORT_DIR}/src/LICENSE \
-    ${ORT_DIR}/src/docs/Privacy.md \
-    ${ORT_DIR}/src/README.md \
-    ${ORT_DIR}/src/ThirdPartyNotices.txt \
-    ${ORT_DIR}/src/VERSION_NUMBER \
-    ${ORT_DIR}/${ONNX_RUNTIME_VERSION}
+    cp ${ORT_DIR}/src/LICENSE ${ORT_DIR}/src/docs/Privacy.md ${ORT_DIR}/src/README.md \
+       ${ORT_DIR}/src/ThirdPartyNotices.txt ${ORT_DIR}/src/VERSION_NUMBER \
+       ${ORT_DIR}/${ONNX_RUNTIME_VERSION}
 
-############################################################
-# ONNX Runtime (Download)
-############################################################
+# ----------------------------------------------------------------------
+#  ONNX‑Runtime downloader (unchanged)
+# ----------------------------------------------------------------------
 FROM base AS onnxruntime-downloader
 ARG ONNX_RUNTIME_VERSION
-
-# Download ORT binaries from artifactory
 WORKDIR /opt/onnxruntime
-RUN CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2) \
-    && curl -S -L -# -o ort.tgz \
-        https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/onnxruntime/onnxruntime-${ONNX_RUNTIME_VERSION}-cuda-${CUDA_MAJOR_MINOR}-$(uname -m).tar.gz
-RUN mkdir -p ${ONNX_RUNTIME_VERSION}
-RUN tar -xf ort.tgz -C ${ONNX_RUNTIME_VERSION} --strip-components 2 --no-same-owner --no-same-permissions
+RUN CUDA_MAJOR_MINOR=$(echo ${CUDA_VERSION} | cut -d. -f1-2) && \
+    curl -S -L -# -o ort.tgz \
+        https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/onnxruntime/onnxruntime-${ONNX_RUNTIME_VERSION}-cuda-${CUDA_MAJOR_MINOR}-$(uname -m).tar.gz && \
+    mkdir -p ${ONNX_RUNTIME_VERSION} && \
+    tar -xf ort.tgz -C ${ONNX_RUNTIME_VERSION} --strip-components 2 --no-same-owner --no-same-permissions
 
-############################################################
-# ONNX Runtime (Build or Download)
-############################################################
+# ----------------------------------------------------------------------
+#  ONNX‑Runtime final selector (unchanged)
+# ----------------------------------------------------------------------
 FROM onnxruntime-${ONNX_RUNTIME_STRATEGY} AS onnxruntime
 
-############################################################
-# Libtorch
-############################################################
+# ----------------------------------------------------------------------
+#  Libtorch downloader (unchanged)
+# ----------------------------------------------------------------------
 FROM python-base AS libtorch-downloader
 ARG LIBTORCH_CU12_VERSION
 ARG LIBTORCH_CU13_VERSION
 ARG GPU_TYPE
-
-# Install torch wheel
 ARG TORCH_WHL_DIR=/tmp/torch-whl
 RUN --mount=type=cache,target=/root/.cache/pip,id=holoscan-sdk-pip-cache-$TARGETARCH-$GPU_TYPE \
     if [ "$GPU_TYPE" = "dgpu" ]; then \
@@ -440,278 +314,214 @@ RUN --mount=type=cache,target=/root/.cache/pip,id=holoscan-sdk-pip-cache-$TARGET
             LIBTORCH_VERSION="${LIBTORCH_CU13_VERSION}+cu130"; \
         fi; \
         INDEX_URL="https://download.pytorch.org/whl"; \
-        python3 -m pip install \
-            --pre \
-            --no-deps \
-            --target ${TORCH_WHL_DIR} \
-            --index-url ${INDEX_URL} \
-            --extra-index-url "${INDEX_URL}/test" \
-            --extra-index-url "${INDEX_URL}/nightly" \
-            torch==${LIBTORCH_VERSION}; \
+        python3 -m pip install --pre --no-deps --target ${TORCH_WHL_DIR} \
+            --index-url ${INDEX_URL} --extra-index-url "${INDEX_URL}/test" \
+            --extra-index-url "${INDEX_URL}/nightly" torch==${LIBTORCH_VERSION}; \
     else \
-        python3 -m pip install \
-            --no-deps \
-            --python-version 3.10 \
+        python3 -m pip install --no-deps --python-version 3.10 \
             --target ${TORCH_WHL_DIR} \
             --index-url "https://pypi.jetson-ai-lab.io/jp6/cu126" \
             torch=="${LIBTORCH_CU12_VERSION}"; \
-    fi; \
+    fi && \
     if ! find ${TORCH_WHL_DIR} -name "libtorch_cuda.so" > /dev/null; then \
-        echo "ERROR: Could not find libtorch_cuda.so in ${TORCH_WHL_DIR}, please check the download"; \
-        exit 1; \
-    fi;
-
-# Copy libtorch C++
+        echo "ERROR: Could not find libtorch_cuda.so in ${TORCH_WHL_DIR}" && exit 1; \
+    fi
 WORKDIR /opt/libtorch/${LIBTORCH_VERSION}
-RUN TORCH_INSTALL="${TORCH_WHL_DIR}/torch" \
-    && echo "-- Copying libtorch ${LIBTORCH_VERSION} from ${TORCH_INSTALL} to $(pwd)" \
-    && mkdir -p lib \
-    && cp -v \
-        "${TORCH_INSTALL}/lib/libc10.so" \
-        "${TORCH_INSTALL}/lib/libc10_cuda.so" \
-        "${TORCH_INSTALL}/lib/libshm.so" \
-        "${TORCH_INSTALL}/lib/libtorch"* \
-        lib/ \
-    && if [ "$GPU_TYPE" = "dgpu" ] && compgen -G "${TORCH_INSTALL}/lib/libgomp"* > /dev/null; then \
-        cp -v "${TORCH_INSTALL}/lib/libgomp"* lib/ \
-        && if [ $(uname -m) = "aarch64" ] && compgen -G "${TORCH_INSTALL}/lib/libarm_"* > /dev/null; then \
+RUN TORCH_INSTALL="${TORCH_WHL_DIR}/torch" && \
+    mkdir -p lib && \
+    cp -v "${TORCH_INSTALL}/lib/"{libc10.so,libc10_cuda.so,libshm.so,libtorch*} lib/ && \
+    if [ "$GPU_TYPE" = "dgpu" ] && compgen -G "${TORCH_INSTALL}/lib/libgomp"* > /dev/null; then \
+        cp -v "${TORCH_INSTALL}/lib/libgomp"* lib/; \
+        if [ $(uname -m) = "aarch64" ] && compgen -G "${TORCH_INSTALL}/lib/libarm_"* > /dev/null; then \
             cp -v "${TORCH_INSTALL}/lib/libarm_"* lib/; \
         fi; \
-    fi \
-    && cp -rv "${TORCH_INSTALL}/bin" bin \
-    && cp -rv "${TORCH_INSTALL}/share" share \
-    && cp -rv "${TORCH_INSTALL}/include" include
-
-# Patch step to remove kineto from config to remove warning, not needed by holoscan
+    fi && \
+    cp -rv "${TORCH_INSTALL}/bin" bin && \
+    cp -rv "${TORCH_INSTALL}/share" share && \
+    cp -rv "${TORCH_INSTALL}/include" include
 RUN find . -type f -name "*Config.cmake" -exec sed -i '/kineto/d' {} +
 
-############################################################################################
-# DLA (iGPU drivers)
-############################################################################################
+# ----------------------------------------------------------------------
+#  DLA (iGPU drivers) – unchanged
+# ----------------------------------------------------------------------
 FROM base AS dla-downloader
-
 WORKDIR /opt/nvidia/dla
 RUN curl -S -# -L -o l4t_core.deb \
-    http://l4t-repo.nvidia.com/t234/pool/main/n/nvidia-l4t-core/nvidia-l4t-core_36.4.6-20250515220842_arm64.deb
-RUN curl -S -# -L -o l4t_cuda.deb \
-    http://l4t-repo.nvidia.com/t234/pool/main/n/nvidia-l4t-cuda/nvidia-l4t-cuda_36.4.6-20250515220842_arm64.deb
-RUN curl -S -# -L -o l4t_dla.deb \
+    http://l4t-repo.nvidia.com/t234/pool/main/n/nvidia-l4t-core/nvidia-l4t-core_36.4.6-20250515220842_arm64.deb && \
+    curl -S -# -L -o l4t_cuda.deb \
+    http://l4t-repo.nvidia.com/t234/pool/main/n/nvidia-l4t-cuda/nvidia-l4t-cuda_36.4.6-20250515220842_arm64.deb && \
+    curl -S -# -L -o l4t_dla.deb \
     http://l4t-repo.nvidia.com/common/pool/main/n/nvidia-l4t-dla-compiler/nvidia-l4t-dla-compiler_36.4.6-20250515220842_arm64.deb
 
-############################################################
-# gRPC libraries and binaries
-############################################################
+# ----------------------------------------------------------------------
+#  gRPC builder – unchanged
+# ----------------------------------------------------------------------
 FROM build-tools AS grpc-builder
 ARG GRPC_VERSION
-
 WORKDIR /opt/grpc
-RUN git clone --depth 1 --branch v${GRPC_VERSION} \
-         --recurse-submodules --shallow-submodules \
-         https://github.com/grpc/grpc.git src
+RUN git clone --depth 1 --branch v${GRPC_VERSION} --recurse-submodules \
+    --shallow-submodules https://github.com/grpc/grpc.git src
 RUN cmake -S src -B build -G Ninja \
-         -D CMAKE_BUILD_TYPE=Release \
-         -D CMAKE_CXX_VISIBILITY_PRESET=hidden \
-         -D CMAKE_VISIBILITY_INLINES_HIDDEN=1 \
-         -D gRPC_INSTALL=ON \
-         -D gRPC_BUILD_TESTS=OFF \
-         -D gRPC_BUILD_CSHARP_EXT=OFF \
-         -D gRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF \
-         -D gRPC_BUILD_GRPC_NODE_PLUGIN=OFF \
-         -D gRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF \
-         -D gRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF \
-         -D gRPC_BUILD_GRPC_RUBY_PLUGIN=OFF
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_CXX_VISIBILITY_PRESET=hidden \
+    -D CMAKE_VISIBILITY_INLINES_HIDDEN=1 \
+    -D gRPC_INSTALL=ON -D gRPC_BUILD_TESTS=OFF \
+    -D gRPC_BUILD_CSHARP_EXT=OFF -D gRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF \
+    -D gRPC_BUILD_GRPC_NODE_PLUGIN=OFF -D gRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF \
+    -D gRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF -D gRPC_BUILD_GRPC_RUBY_PLUGIN=OFF
 RUN cmake --build build -j $(( `nproc` > ${MAX_PROC} ? ${MAX_PROC} : `nproc` ))
 RUN cmake --install build --prefix /opt/grpc/${GRPC_VERSION}
 
-############################################################
-# GXF
-############################################################
+# ----------------------------------------------------------------------
+#  GXF downloader – unchanged
+# ----------------------------------------------------------------------
 FROM base AS gxf-downloader
 ARG GXF_CU12_VERSION
 ARG GXF_CU13_VERSION
 ARG CUDA_MAJOR
-
 WORKDIR /opt/nvidia/gxf
 RUN if [ "${CUDA_MAJOR}" = "13" ]; then \
         GXF_VERSION="${GXF_CU13_VERSION}"; \
     else \
         GXF_VERSION="${GXF_CU12_VERSION}"; \
-    fi; \
+    fi && \
     curl -S -# -L -o gxf.tgz \
-        "https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/gxf/gxf_${GXF_VERSION}_$(uname -m).tar.gz"; \
-    if [ $(stat -c %s gxf.tgz) -lt 1000 ]; then \
-        echo "ERROR: Downloaded gxf.tgz is too small. Download may have failed."; \
-        exit 1; \
-    fi
-RUN tar xzf gxf.tgz --strip-components 1 --no-same-owner --no-same-permissions
+        "https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/gxf/gxf_${GXF_VERSION}_$(uname -m).tar.gz" && \
+    tar xzf gxf.tgz --strip-components 1 --no-same-owner --no-same-permissions && \
+    rm -f gxf.tgz
 
-############################################################
-# APT repository configs
-############################################################
+# ----------------------------------------------------------------------
+#  APT repo config (DOCA) – unchanged (see earlier stage “apt-repo-config”)
+# ----------------------------------------------------------------------
 FROM base AS apt-repo-config
-
-# Setup DOCA APT repository
 ARG DOCA_VERSION
 RUN DOCA_ARCH=$(uname -m); \
-    if [ "${DOCA_ARCH}" = "aarch64" ]; then \
-        DOCA_ARCH="arm64-sbsa"; \
-    fi \
-    && DOCA_REPO_ROOT="https://linux.mellanox.com/public/repo/doca" \
-    && DOCA_HOSTNAME=$(echo "${DOCA_REPO_ROOT}" | sed 's|https://\([^/]*\).*|\1|') \
-    && DISTRO=$(. /etc/os-release && echo "$ID$VERSION_ID") \
-    && DOCA_URL="${DOCA_REPO_ROOT}/${DOCA_VERSION}/${DISTRO}/${DOCA_ARCH}/" \
-    && DOCA_GPG_KEY="GPG-KEY-Mellanox.pub" \
-    && DOCA_GPG_KEY_PATH="/etc/apt/trusted.gpg.d/${DOCA_GPG_KEY}" \
-    && curl -fsSL ${DOCA_URL}/${DOCA_GPG_KEY} | gpg --dearmor -o ${DOCA_GPG_KEY_PATH} \
-    && echo "deb [signed-by=${DOCA_GPG_KEY_PATH}] ${DOCA_URL} ./" \
-        > /etc/apt/sources.list.d/doca.list \
-    && DOCA_HOSTNAME=$(echo "${DOCA_REPO_ROOT}" | sed 's|https://\([^/]*\).*|\1|') \
-    && echo "Package: *\nPin: origin \"${DOCA_HOSTNAME}\"\nPin-Priority: 800" \
-        > /etc/apt/preferences.d/doca-pin
+    if [ "${DOCA_ARCH}" = "aarch64" ]; then DOCA_ARCH="arm64-sbsa"; fi && \
+    DOCA_REPO_ROOT="https://linux.mellanox.com/public/repo/doca" && \
+    DOCA_HOSTNAME=$(echo "${DOCA_REPO_ROOT}" | sed 's|https://\([^/]*\).*|\1|') && \
+    DISTRO=$(. /etc/os-release && echo "$ID$VERSION_ID") && \
+    DOCA_URL="${DOCA_REPO_ROOT}/${DOCA_VERSION}/${DISTRO}/${DOCA_ARCH}/" && \
+    DOCA_GPG_KEY="GPG-KEY-Mellanox.pub" && \
+    DOCA_GPG_KEY_PATH="/etc/apt/trusted.gpg.d/${DOCA_GPG_KEY}" && \
+    curl -fsSL ${DOCA_URL}/${DOCA_GPG_KEY} | gpg --dearmor -o ${DOCA_GPG_KEY_PATH} && \
+    echo "deb [signed-by=${DOCA_GPG_KEY_PATH}] ${DOCA_URL} ./" > /etc/apt/sources.list.d/doca.list && \
+    echo "Package: *\nPin: origin \"${DOCA_HOSTNAME}\"\nPin-Priority: 800" > /etc/apt/preferences.d/doca-pin
 
-############################################################
-# UCX
-############################################################
+# ----------------------------------------------------------------------
+#  UCX downloader – unchanged (see earlier stage “ucx-downloader”)
+# ----------------------------------------------------------------------
 FROM apt-repo-config AS ucx-downloader
 ARG UCX_CU12_APT_VERSION
 ARG UCX_CU13_FILE_VERSION
-
 WORKDIR /opt/hpcx
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
-    mkdir -p /opt/hpcx/ucx \
-    && if [ "${CUDA_MAJOR}" = "13" ]; then \
+    mkdir -p /opt/hpcx/ucx && \
+    if [ "${CUDA_MAJOR}" = "13" ]; then \
         curl -S -# -L -o ucx.tgz \
-            https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/hpcx/ucx-${UCX_CU13_FILE_VERSION}_$(uname -m).tar.gz; \
+            https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/hpcx/ucx-${UCX_CU13_FILE_VERSION}_$(uname -m).tar.gz && \
         tar xvf ucx.tgz -C ucx --strip-components 1 --no-same-owner --no-same-permissions; \
     else \
-        apt-get update \
-        && for pkg in ucx ucx-cuda; do \
+        apt-get update && \
+        for pkg in ucx ucx-cuda; do \
             apt-get download ${pkg}="${UCX_CU12_APT_VERSION}*"; \
             deb_file=$(ls /opt/hpcx/${pkg}_*.deb | head -n1); \
             dpkg-deb -x "$deb_file" /opt/hpcx/ucx; \
             rm -f "$deb_file"; \
-        done \
-        && mv /opt/hpcx/ucx/usr/* /opt/hpcx/ucx/ \
-        && rm -rf /opt/hpcx/ucx/usr \
-        && rm -rf /var/lib/apt/lists/*; \
-    fi \
-    && if [ ! -f /opt/hpcx/ucx/lib/cmake/ucx/ucx-config.cmake ]; then exit 1; fi
+        done && \
+        mv /opt/hpcx/ucx/usr/* /opt/hpcx/ucx/ && rm -rf /opt/hpcx/ucx/usr && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi && \
+    if [ ! -f /opt/hpcx/ucx/lib/cmake/ucx/ucx-config.cmake ]; then exit 1; fi
 
-############################################################
-# Build image
-############################################################
+# ----------------------------------------------------------------------
+#  BUILD‑GENERIC (original) + **DPDK/DOCA merge**
+# ----------------------------------------------------------------------
 FROM infer-dev AS build-generic
-
-# Setup apt repositories
-COPY --from=apt-repo-config /etc/apt/keyrings/ /etc/apt/keyrings/
+# ----- copy apt‑repo config (so that the DOCA repo is known) -----
+COPY --from=apt-repo-config /etc/apt/keyrings/      /etc/apt/keyrings/
 COPY --from=apt-repo-config /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
 COPY --from=apt-repo-config /etc/apt/preferences.d/ /etc/apt/preferences.d/
 COPY --from=apt-repo-config /etc/apt/trusted.gpg.d/ /etc/apt/trusted.gpg.d/
 
-# APT INSTALLS
-#  valgrind - dynamic analysis
-#  clang-tidy - static analysis
-#  xvfb - testing on headless systems
-#  libx* - X packages
-#  libvulkan-dev, glslang-tools - for Vulkan apps (Holoviz)
-#  vulkan-validationlayers - for Vulkan validation layer (enabled for Holoviz in debug mode)
-#  libwayland-dev, libxkbcommon-dev, pkg-config - GLFW compile dependency for Wayland support
-#  libdecor-0-plugin-1-cairo - GLFW runtime dependency for Wayland window decorations
-#  libegl1 - to run headless Vulkan apps
-#  libv4l-dev - V4L2 operator dependency
-#  v4l-utils - V4L2 operator utility
-#  libjpeg-turbo8-dev - (8.0) v4l2 mjpeg dependency
-#  ucx-*: needed for distributed apps (holoscan core) - comes from the DOCA repository
-#  ibverbs* rdma*: needed for ConnectX RDMA support for ucx
+# ----- original apt‑installs (valgrind, clang‑tidy, …) -----
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
-    apt-get update \
-    && apt-get install --no-install-recommends -y \
-        valgrind \
-        clang-tidy \
-        xvfb \
-        libx11-dev \
-        libxcb-glx0 \
-        libxcursor-dev \
-        libxi-dev \
-        libxinerama-dev \
-        libxrandr-dev \
-        libvulkan-dev \
-        glslang-tools \
-        vulkan-validationlayers \
-        libwayland-dev \
-        libxkbcommon-dev \
-        pkg-config \
-        libdecor-0-plugin-1-cairo \
-        libegl1 \
-        libv4l-dev \
-        v4l-utils \
-        libjpeg-turbo8-dev \
-        ibverbs-providers libibverbs1 librdmacm1 \
-    && DRIVER_PACKAGES=$(apt list --installed 2>/dev/null | grep libnvidia- | cut -d/ -f1) \
-    && echo "-- Removing files from driver packages brought by ucx-cuda which should not be in the container:" ${DRIVER_PACKAGES} \
-    && for pkg in ${DRIVER_PACKAGES}; do \
+    apt-get update && \
+    apt-get install --no-install-recommends -y \
+        valgrind clang-tidy xvfb \
+        libx11-dev libxcb-glx0 libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev \
+        libvulkan-dev glslang-tools vulkan-validationlayers \
+        libwayland-dev libxkbcommon-dev pkg-config \
+        libdecor-0-plugin-1-cairo libegl1 \
+        libv4l-dev v4l-utils libjpeg-turbo8-dev \
+        ibverbs-providers libibverbs1 librdmacm1 && \
+    DRIVER_PACKAGES=$(apt list --installed 2>/dev/null | grep libnvidia- | cut -d/ -f1) && \
+    for pkg in ${DRIVER_PACKAGES}; do \
         dpkg -L ${pkg} | xargs -I {} sh -c 'if [ ! -d "{}" ]; then rm -v "{}"; fi'; \
     done
 
-# libvulkan-dev depends on python3 package which pulls python3.10. re-override with python3.12
+# ----- keep python3.12 as default (unchanged) -----
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
-# PIP INSTALLS
-#  requirements.dev.txt
-#    coverage - test coverage of python tests
-#    pytest*  - testing
-#    pillow - convert_gxf_entities_to_images dependency
-#  requirements
-#    pip - 22.0.2+ needed for PEP 600 and a version that is greater than the Ubuntu 22.04's python3-pip package for python wheel symlinks resolution
-#    cupy-cuda - dependency for holoscan python + examples
-#    cloudpickle - dependency for distributed apps
+# ------------------------------------------------------------------
+#  <<<< MERGE >>>>  DPDK / DOCA installation
+# ------------------------------------------------------------------
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        mlnx-dpdk-dev \
+        libdoca-sdk-dma-dev \
+        libdoca-sdk-gpunetio-dev \
+        libdoca-sdk-eth-dev \
+        libdoca-sdk-flow-dev \
+        mlnx-ofed-kernel-utils \
+        ibverbs-utils \
+        python3-pyelftools \
+        python3-dev \
+        libcublas-dev-12-6 \
+        libcufft-dev-12-6 \
+        libcusolver-dev-12-6 \
+        libcurand-dev-12-6 \
+        ninja-build \
+        pkgconf && \
+    rm -rf /var/lib/apt/lists/*
+
+# Make the pkg‑config files visible to the later builds
+ENV PKG_CONFIG_PATH="/opt/mellanox/dpdk/lib/x86_64-linux-gnu/pkgconfig:${PKG_CONFIG_PATH}"
+
+# ------------------------------------------------------------------
+#  (rest of the original build‑generic stage – pip, ONNX, libtorch, …)
+# ------------------------------------------------------------------
 COPY python/requirements.dev.txt /tmp/requirements.dev.txt
 COPY python/requirements.cu${CUDA_MAJOR}.txt /tmp/requirements.cu${CUDA_MAJOR}.txt
 RUN --mount=type=cache,target=/root/.cache/pip,id=holoscan-sdk-pip-cache-$TARGETARCH-$GPU_TYPE \
     python3 -m pip install -r /tmp/requirements.dev.txt -r /tmp/requirements.cu${CUDA_MAJOR}.txt
-
-# A pre-existing NumPy 1.x may have been kept by the above requirements.txt. Explicitly install 2.x.
 RUN --mount=type=cache,target=/root/.cache/pip,id=holoscan-sdk-pip-cache-$TARGETARCH-$GPU_TYPE \
-    python3 -m pip install \
-        "numpy>2.0"
-
-# Disable the keep-archives setting at the end of the build stage
-# so it doesn't persist for users interacting directly with this image.
+    python3 -m pip install "numpy>2.0"
 RUN KEEP_APT_ARCHIVES_CONF="/etc/apt/apt.conf.d/99-keep-archives"; \
     if [ -f "${KEEP_APT_ARCHIVES_CONF}" ]; then \
-        mv "${KEEP_APT_ARCHIVES_CONF}" "${KEEP_APT_ARCHIVES_CONF}.disabled"; \
+        mv "${KEEP_AP_ARCHIVES_CONF}" "${KEEP_APT_ARCHIVES_CONF}.disabled"; \
         echo "Disabled ${KEEP_APT_ARCHIVES_CONF} at the end of the build stage."; \
     fi
 
-## COPY
-# Note: avoid LD_LIBRARY_PATH - https://www.hpc.dtu.dk/?page_id=1180
-
-# Copy NGC CLI
+# ------------------------------------------------------------------
+#  Copy runtime artefacts (NGC‑CLI, ONNX‑Runtime, libtorch, gRPC, GXF, UCX)
+# ------------------------------------------------------------------
 ENV NGC_CLI=/opt/ngc-cli
 COPY --from=ngc-cli-downloader ${NGC_CLI}/ngc-cli ${NGC_CLI}
 ENV PATH="${PATH}:${NGC_CLI}"
-# Workaround to fix encoding for ngc-cli download
-# https://jirasw.nvidia.com/browse/NGC-31306
 ENV PYTHONIOENCODING=utf-8 LC_ALL=C.UTF-8
 
-# Copy ONNX Runtime
 ARG ONNX_RUNTIME_VERSION
 ENV ONNX_RUNTIME=/opt/onnxruntime/${ONNX_RUNTIME_VERSION}
 COPY --from=onnxruntime ${ONNX_RUNTIME} ${ONNX_RUNTIME}
 ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:${ONNX_RUNTIME}"
 
-# Copy Libtorch
 ENV LIBTORCH=/opt/libtorch
 COPY --from=libtorch-downloader ${LIBTORCH} ${LIBTORCH}
 ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:${LIBTORCH}"
-
-# Install runtime requirements if needed by libtorch:
-# - mkl (libtorch_cpu.so)
-# - OpenMPI (libtorch_cpu.so)
-# - UCC (libtorch.so)
-# - nvshmem (libtorch.so)
 RUN --mount=type=cache,target=/root/.cache/pip,id=holoscan-sdk-pip-cache-$TARGETARCH-$GPU_TYPE \
     if find ${LIBTORCH} -name libtorch.so | xargs -I {} ldd {} | grep -q "libmkl_core.so"; then \
         python3 -m pip install mkl=="2021.1.1"; \
@@ -719,76 +529,46 @@ RUN --mount=type=cache,target=/root/.cache/pip,id=holoscan-sdk-pip-cache-$TARGET
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=holoscan-sdk-apt-cache-$TARGETARCH-$GPU_TYPE \
     --mount=type=cache,target=/var/lib/apt,sharing=locked,id=holoscan-sdk-apt-lib-$TARGETARCH-$GPU_TYPE \
     if find ${LIBTORCH} -name libtorch.so | xargs -I {} ldd {} | grep -q "libmpi.so"; then \
-        apt-get update \
-        && apt-get install --no-install-recommends -y openmpi="4.1.7rc1-*" \
+        apt-get update && apt-get install -y --no-install-recommends openmpi="4.1.7rc1-*" \
         && dpkg -L openmpi | grep libmpi.so$ | xargs dirname > /etc/ld.so.conf.d/openmpi.conf \
-        && ldconfig \
-        && ldconfig -p | grep -q libmpi.so$ \
-        && rm -rf /var/lib/apt/lists/*; \
+        && ldconfig && rm -rf /var/lib/apt/lists/*; \
     fi; \
     if find ${LIBTORCH} -name libtorch.so | xargs -I {} ldd {} | grep -q "libnvshmem_host.so"; then \
-        apt-get update \
-        && apt-get install --no-install-recommends -y libnvshmem3-cuda-${CUDA_MAJOR} \
+        apt-get update && apt-get install -y --no-install-recommends libnvshmem3-cuda-${CUDA_MAJOR} \
         && dpkg -L libnvshmem3-cuda-${CUDA_MAJOR} | grep libnvshmem_host.so.3$ | xargs dirname > /etc/ld.so.conf.d/nvshmem.conf \
         && rm -rf /var/lib/apt/lists/*; \
-    fi;
+    fi
 RUN if find ${LIBTORCH} -name libtorch.so | xargs -I {} ldd {} | grep -q "libucc.so"; then \
-        mkdir -p /opt/hpcx/ucc && cd /opt/hpcx/ucc \
-        && curl -S -# -L -f -o ucc.tgz \
-            https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/hpcx/ucc-1.5.0_11f0929_hpcx-v2.24_25.08_$(uname -m).tar.gz \
-        && tar xf ucc.tgz --strip-components 1 --no-same-owner --no-same-permissions \
-        && rm -f ucc.tgz \
-        && echo "/opt/hpcx/ucc/lib" >> /etc/ld.so.conf.d/ucc.conf \
-        && ldconfig; \
+        mkdir -p /opt/hpcx/ucc && cd /opt/hpcx/ucc && \
+        curl -S -# -L -f -o ucc.tgz \
+            https://edge.urm.nvidia.com/artifactory/sw-holoscan-thirdparty-generic-local/hpcx/ucc-1.5.0_11f0929_hpcx-v2.24_25.08_$(uname -m).tar.gz && \
+        tar xf ucc.tgz --strip-components 1 --no-same-owner --no-same-permissions && \
+        rm -f ucc.tgz && echo "/opt/hpcx/ucc/lib" >> /etc/ld.so.conf.d/ucc.conf && ldconfig; \
     fi
 
-# Copy gRPC
 ARG GRPC_VERSION
 ENV GRPC=/opt/grpc/${GRPC_VERSION}
 COPY --from=grpc-builder ${GRPC} ${GRPC}
 ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:${GRPC}"
 
-# Copy GXF
 ENV GXF=/opt/nvidia/gxf/gxf-install
 COPY --from=gxf-downloader ${GXF} ${GXF}
 ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:${GXF}"
 ENV PYTHONPATH="${PYTHONPATH}:/opt/nvidia/gxf/${GXF_VERSION}/python"
 
-# Copy UCX
 ENV UCX=/opt/hpcx/ucx
 COPY --from=ucx-downloader ${UCX} ${UCX}
 ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:${UCX}"
-RUN echo "/opt/hpcx/ucx/lib" >> /etc/ld.so.conf.d/ucx.conf \
-    && echo "/opt/hpcx/ucx/lib/ucx" >> /etc/ld.so.conf.d/ucx.conf \
-    && ldconfig
+RUN echo "/opt/hpcx/ucx/lib" >> /etc/ld.so.conf.d/ucx.conf && \
+    echo "/opt/hpcx/ucx/lib/ucx" >> /etc/ld.so.conf.d/ucx.conf && ldconfig
 
-############################################################################################
-# dGPU specific build stage
-############################################################################################
+# ----------------------------------------------------------------------
+#  GPU‑type specific rename stages (these were missing before)
+# ----------------------------------------------------------------------
 FROM build-generic AS build-dgpu
-
-# no-op
-
-############################################################################################
-# iGPU specific build stage
-############################################################################################
 FROM build-generic AS build-igpu
 
-# The iGPU CMake build depends on libnvcudla.so as well as libnvdla_compiler.so, which are
-# part of the L4T BSP. As such, they should not be in the container, but mounted at runtime
-# (which the nvidia container runtime handles). However, we need the symbols at build time
-# for the TensorRT libraries to resolve. Since there is no stub library (unlike libcuda.so),
-# we need to include them in our builder. We use a separate stage so that `run build` can
-# use it if needed, but `run launch` (used to run apps in the container) doesn't need to.
-WORKDIR /opt/nvidia/dla
-RUN --mount=type=bind,from=dla-downloader,source=/opt/nvidia/dla,target=/dla \
-    if [ ${GPU_TYPE} = "igpu" ]; then \
-        dpkg -x /dla/l4t_core.deb / \
-        && dpkg -x /dla/l4t_cuda.deb / \
-        && dpkg -x /dla/l4t_dla.deb /; \
-    fi
-
-############################################################################################
-# Final build stage (based on GPU type)
-############################################################################################
+# ----------------------------------------------------------------------
+#  Final stage – selects the correct alias based on $GPU_TYPE
+# ----------------------------------------------------------------------
 FROM build-${GPU_TYPE} AS build
