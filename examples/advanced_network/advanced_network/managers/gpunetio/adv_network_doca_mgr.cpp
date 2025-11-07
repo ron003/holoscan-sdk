@@ -904,9 +904,9 @@ doca_error_t DocaMgr::create_default_pipe(int port_id, uint32_t cnt_defq) {
   }
 
   fwd.type = DOCA_FLOW_FWD_RSS;
-  fwd.rss_queues = rss_queues;
+  /*fwd.rss_queues = rss_queues;
   fwd.rss_outer_flags = DOCA_FLOW_RSS_IPV4;
-  fwd.num_of_queues = cnt_defq;
+  fwd.num_of_queues = cnt_defq;*/
 
   miss_fwd.type = DOCA_FLOW_FWD_DROP;
 
@@ -960,13 +960,13 @@ doca_error_t DocaMgr::create_root_pipe(int port_id) {
     doca_flow_pipe_cfg_destroy(pipe_cfg);
     return result;
   }
-  result = doca_flow_pipe_cfg_set_enable_strict_matching(pipe_cfg, true);
+  /*result = doca_flow_pipe_cfg_set_enable_strict_matching(pipe_cfg, true);
   if (result != DOCA_SUCCESS) {
     HOLOSCAN_LOG_ERROR("Failed to set doca_flow_pipe_cfg enable_strict_matching: {}",
                        doca_error_get_descr(result));
     doca_flow_pipe_cfg_destroy(pipe_cfg);
     return result;
-  }
+  }*/
   result = doca_flow_pipe_cfg_set_type(pipe_cfg, DOCA_FLOW_PIPE_CONTROL);
   if (result != DOCA_SUCCESS) {
     HOLOSCAN_LOG_ERROR("Failed to set doca_flow_pipe_cfg type: {}", doca_error_get_descr(result));

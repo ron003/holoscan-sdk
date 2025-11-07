@@ -57,7 +57,7 @@ DocaRxQueue::DocaRxQueue(struct doca_dev* dev_, struct doca_gpu* gdev_,
   }
 
   result = doca_eth_rxq_estimate_packet_buf_size(
-      DOCA_ETH_RXQ_TYPE_CYCLIC, 0, 0, max_pkt_size, max_pkt_num, 0, &cyclic_buffer_size);
+      DOCA_ETH_RXQ_TYPE_CYCLIC, 0, 0, max_pkt_size, max_pkt_num, 1, 0, 0, &cyclic_buffer_size);
   if (result != DOCA_SUCCESS) {
     HOLOSCAN_LOG_CRITICAL("Failed to get eth_rxq cyclic buffer size: {}",
                           doca_error_get_descr(result));
@@ -204,12 +204,12 @@ doca_error_t DocaRxQueue::create_udp_pipe(const FlowConfig& cfg,
     HOLOSCAN_LOG_ERROR("Failed to set doca_flow_pipe_cfg name: %s", doca_error_get_descr(result));
     return result;
   }
-  result = doca_flow_pipe_cfg_set_enable_strict_matching(pipe_cfg, true);
+  /*result = doca_flow_pipe_cfg_set_enable_strict_matching(pipe_cfg, true);
   if (result != DOCA_SUCCESS) {
     HOLOSCAN_LOG_ERROR("Failed to set doca_flow_pipe_cfg enable_strict_matching: %s",
                        doca_error_get_descr(result));
     return result;
-  }
+  }*/
   result = doca_flow_pipe_cfg_set_type(pipe_cfg, DOCA_FLOW_PIPE_BASIC);
   if (result != DOCA_SUCCESS) {
     HOLOSCAN_LOG_ERROR("Failed to set doca_flow_pipe_cfg type: %s", doca_error_get_descr(result));
@@ -237,9 +237,9 @@ doca_error_t DocaRxQueue::create_udp_pipe(const FlowConfig& cfg,
   rss_queues[0] = flow_queue_id;
 
   fwd.type = DOCA_FLOW_FWD_RSS;
-  fwd.rss_queues = rss_queues;
+  /*fwd.rss_queues = rss_queues;
   fwd.rss_outer_flags = DOCA_FLOW_RSS_IPV4 | DOCA_FLOW_RSS_UDP;
-  fwd.num_of_queues = 1;
+  fwd.num_of_queues = 1;*/
 
   if (rxq_pipe_default != nullptr) {
     miss_fwd.type = DOCA_FLOW_FWD_PIPE;
